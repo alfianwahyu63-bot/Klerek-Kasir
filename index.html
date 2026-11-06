@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#071321">
 <meta name="color-scheme" content="dark">
-<title>KLEREK KASIR · Offline</title>
-<meta name="description" content="Perhitungan dan rekap klerek kasir, berjalan offline dengan 6 tema pilihan.">
+<title>KLEREK KASIR · 6 Kasir & Cloud</title>
+<meta name="description" content="Perhitungan dan rekap klerek kasir 3 shift, 6 kasir, cloud Supabase multiuser, 6 tema, laporan grafik, PIN, serta ekspor PDF/PNG.">
 <meta name="application-name" content="KLEREK KASIR">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -181,17 +181,66 @@ input{color:var(--white)}
 .appearance-note{padding:10px 12px;border-radius:11px;background:var(--panel-c);color:var(--muted);font-size:11px;margin-top:14px}
 @media(max-width:355px){.theme-grid{gap:7px}.theme-choice{padding:10px 8px}.layout-grid{gap:6px}.layout-choice{padding:9px 4px}}
 
+/* Status sambungan hanya indikator internet; seluruh data tetap tersimpan lokal. */
+.connection-pill{display:inline-flex;align-items:center;gap:5px;margin-top:5px;font-size:10px;font-weight:750;border:1px solid var(--border);border-radius:999px;padding:2px 8px;color:var(--green);background:var(--card)}
+.connection-pill.is-offline{color:var(--orange)}
+.connection-dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
+
+/* v3.4 cloud: mobile UI and offline/unsynced status */
+.cloud-input{display:block;width:100%;min-height:45px;margin:6px 0 13px;padding:12px 13px;border:1px solid var(--border);border-radius:11px;background:var(--input);color:var(--white)}
+.cloud-member{display:flex;gap:8px;align-items:center;border-top:1px solid var(--border);padding:12px 0;font-size:12px;flex-wrap:wrap}
+.cloud-secret{border:1px dashed var(--border);border-radius:11px;padding:11px 8px;background:var(--input);font-size:12px;overflow-wrap:anywhere;font-weight:700;letter-spacing:.3px}
+.cloud-role{padding:7px 4px;max-width:130px;background:var(--input);color:var(--white);border:1px solid var(--border);border-radius:9px;font-size:12px}
+/* v3.3 navigation, three shifts, reports, PIN and printable summary */
+.bottom-inner{grid-template-columns:repeat(5,minmax(0,1fr))}
+.nav{font-size:10px;min-width:0;padding:7px 1px}.nav svg{height:21px;width:21px}
+.segment.three{grid-template-columns:repeat(3,minmax(0,1fr))}.segment.three button{padding:8px 4px}.segment.three small{display:block;font-size:10px;font-weight:500;opacity:.85}
+.hero-bottom.shift-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.hero-bottom.shift-summary>div{min-width:0}.hero-bottom.shift-summary strong{font-size:clamp(10px,2.8vw,13px);overflow-wrap:anywhere}
+.manual-date-note{color:var(--muted);background:var(--card);border:1px dashed var(--border);border-radius:11px;padding:7px 10px;margin:-5px 0 12px;font-size:11px}.shift-night-banner{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:13px;padding:10px 12px;margin-bottom:12px;font-size:12px}
+.shift-night-banner strong{color:var(--white)}.shift-label{color:var(--blue)}
+.link-button{border:0;color:var(--blue);background:none;text-decoration:underline;font-size:12px;font-weight:750;cursor:pointer;padding:2px}
+.staff-input{width:100%;padding:12px 8px;background:transparent;border:0;color:var(--white)}
+.time-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.time-grid input{display:block;margin-top:6px;background:var(--field-bg);color:var(--field-text);border:1px solid var(--input-stroke);border-radius:10px;padding:10px;width:100%;color-scheme:inherit}
+.report-month{width:100%;background:var(--field-bg);color:var(--field-text);border:1px solid var(--input-stroke);padding:12px;border-radius:11px;color-scheme:inherit}
+.chart-wrap svg{width:100%;height:auto;display:block;overflow:visible}.chart-foot{color:var(--muted);font-size:11px;margin-top:6px}.empty-graph{display:grid;place-items:center;min-height:140px;color:var(--muted);font-size:12px}
+#print-report{display:none}.pin-overlay[hidden],#print-report[hidden]{display:none!important}
+.pin-overlay{position:fixed;inset:0;z-index:100;background:linear-gradient(145deg,#071321,#123452);display:grid;place-items:center;padding:22px;color:#fff}
+.pin-panel{width:min(100%,390px);padding:28px 24px;background:#152942;border:1px solid #37557b;border-radius:24px;text-align:center;box-shadow:0 20px 80px #0007}
+.pin-lock-icon{font-size:45px}.pin-panel h2{margin:8px 0 1px}.pin-panel p{color:#b8cae1;font-size:13px}
+.pin-panel input{border-radius:13px;border:1px solid #54749d;background:#0b1b31;color:#fff;font-size:25px;letter-spacing:10px;text-align:center;width:100%;padding:13px;margin:12px 0 16px}
+.pin-panel .pin-error{color:#ff9292;min-height:19px}.pin-panel small{color:#a8b8cf}
+body.pin-locked{overflow:hidden}
+@media print{
+ @page{size:A4;margin:14mm}html,body{background:#fff!important;color:#171717!important;min-height:initial}
+ body>.app,body>.bottom,body>.toast,body>.pin-overlay,body>#import-file{display:none!important}
+ #print-report{display:block!important;position:static!important;color:#1d2838!important;background:#fff!important}
+ .print-doc{font:11px/1.45 system-ui,Arial,sans-serif;max-width:100%;color:#19293b}
+ .print-doc h1{font-size:22px;margin:8px 0}.print-doc p{font-size:11px;margin:8px 0 16px}
+ .print-doc .print-brand{font-size:12px;font-weight:800;color:#2666b5;letter-spacing:1px}
+ .print-doc table{width:100%;border-collapse:collapse;font-size:10px;table-layout:auto}
+ .print-doc th,.print-doc td{border:1px solid #bfc9d6;padding:8px 5px;vertical-align:middle;text-align:right;overflow-wrap:anywhere}
+ .print-doc th:first-child,.print-doc td:first-child,.print-doc th:nth-child(2),.print-doc td:nth-child(2){text-align:left}
+ .print-doc th{background:#dceafa!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .print-doc tr.total{background:#edf4ff!important;font-weight:800;print-color-adjust:exact}
+ .print-doc .print-note{margin-top:20px;color:#606c79}
+}
+
 </style>
 </head>
 <body>
 <div class="app"><header class="app-head" id="header"></header><main class="content" id="screen"></main></div>
 <nav class="bottom" aria-label="Navigasi utama"><div class="bottom-inner" id="nav"></div></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="print-report" hidden></div>
+<div id="pin-overlay" class="pin-overlay" hidden><div class="pin-panel"><div class="pin-lock-icon">🔒</div><h2>KLEREK KASIR</h2><p>Masukkan PIN untuk membuka</p><input id="pin-unlock" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="••••••" aria-label="PIN aplikasi"><button class="btn primary full" data-pin-action="unlock">Buka Aplikasi</button><p id="pin-error" class="pin-error" role="alert"></p><small>PIN tidak dapat dipulihkan. Backup data berkala.</small></div></div>
 <input id="import-file" type="file" accept=".json,application/json" style="display:none">
+<script src="./supabase-config.js"></script>
 <script>
 (function(){'use strict';
 const SVG={calc:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8v4H8zM8 14h1m3 0h1m3 0h1M8 18h1m3 0h1m3 0h1"/>',home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',dots:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',settings:'<circle cx="12" cy="12" r="3"/><path d="M19 13.5a7 7 0 0 0 0-3l2-1-2-4-2 1a7 7 0 0 0-2.5-1.5L14 2h-4l-.5 3a7 7 0 0 0-2.5 1.5l-2-1-2 4 2 1a7 7 0 0 0 0 3l-2 1 2 4 2-1a7 7 0 0 0 2.5 1.5L10 22h4l.5-3a7 7 0 0 0 2.5-1.5l2 1 2-4z"/>',back:'<path d="m15 18-6-6 6-6"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6m10-6v6M3 10h18"/>',copy:'<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/>',save:'<path d="M4 3h14l3 3v15H3V3zM7 3v7h10V3M7 21v-8h10v8"/>',plus:'<path d="M12 4v16M4 12h16"/>',wallet:'<rect x="3" y="6" width="18" height="15" rx="2"/><path d="M3 9h18m-6 6h3"/>',file:'<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM13 2v7h7M8 14h8M8 18h8"/>',check:'<path d="m4 12 5 5L20 6"/>',search:'<circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/>',trash:'<path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v7m4-7v7"/>',reset:'<path d="M3 11a9 9 0 1 1 3 7m-3 1v-6h6"/>'};
 const icon=(k,size=20)=>`<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SVG[k]||SVG.calc}</svg>`;
+const APP_VERSION='3.5.0';
 const clone=o=>JSON.parse(JSON.stringify(o));
 const today=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const money=n=>'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID');
@@ -201,10 +250,13 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'
 const sum=xs=>xs.reduce((a,b)=>a+(Number(b)||0),0);
 const niceDate=s=>{let d=new Date((s||today())+'T12:00:00');return Number.isNaN(d.getTime())?s:new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(d)};
 const shortDate=s=>{let d=new Date((s||today())+'T12:00:00');return Number.isNaN(d.getTime())?s:new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(d)};
-const NEW={date:today(),shifts:[{cashiers:[{name:'Kasir 1',rows:[{pickup:0,etrans:0,pln:0}]},{name:'Kasir 2',rows:[{pickup:0,etrans:0,pln:0}]}]},{cashiers:[{name:'Kasir 1',rows:[{pickup:0,etrans:0,pln:0}]},{name:'Kasir 2',rows:[{pickup:0,etrans:0,pln:0}]}]}],store:{sales:0,settleEtrans:0,settlePln:0,etransShift1:0,plnShift1:0,deposits:[0]}};
+const CASHIER_COUNTS=[2,2,2];
+const freshCashier=j=>({name:'Kasir '+(j+1),rows:[{pickup:0,etrans:0,pln:0}]});
+const NEW={date:today(),shifts:CASHIER_COUNTS.map(n=>({cashiers:Array.from({length:n},(_,j)=>freshCashier(j))})),store:{sales:0,settleEtrans:0,settlePln:0,etransShift1:0,plnShift1:0,etransShift2:0,plnShift2:0,deposits:[0]}};
 // Menggunakan kunci penyimpanan versi lama agar data yang masih tersedia dapat dibaca.
 const DATA_KEY='klerek_kasir_v1',HISTORY_KEY='klerek_kasir_history_v1';
-let state=clone(NEW),history=[],page='dashboard',selectedShift=0,stored=false,query='';
+let state=clone(NEW),history=[],page='dashboard',selectedShift=new Date().getHours()>=22?2:0,stored=false,query='';
+let cloud=null; // koneksi hanya aktif setelah login & pemilihan toko, data lokal tetap terpisah
 
 const PREF_KEY='klerek_kasir_tampilan_v1';
 const THEMES=[
@@ -236,53 +288,267 @@ function changeAppearance(k,v){
 applyAppearance();
 
 try{let existing=JSON.parse(localStorage.getItem(DATA_KEY)||'null'),h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');if(existing&&Array.isArray(existing.shifts)){state=existing;stored=true}if(Array.isArray(h))history=h}catch(e){}
-function normalize(){if(!Array.isArray(state.shifts))state.shifts=clone(NEW.shifts);for(let i=0;i<2;i++){if(!state.shifts[i])state.shifts[i]=clone(NEW.shifts[i]);if(!Array.isArray(state.shifts[i].cashiers))state.shifts[i].cashiers=clone(NEW.shifts[i].cashiers);for(let j=0;j<2;j++){if(!state.shifts[i].cashiers[j])state.shifts[i].cashiers[j]=clone(NEW.shifts[i].cashiers[j]);let c=state.shifts[i].cashiers[j];if(!Array.isArray(c.rows)||!c.rows.length)c.rows=[{pickup:0,etrans:0,pln:0}];if(typeof c.name!=='string')c.name='Kasir '+(j+1)}}state.store={...NEW.store,...(state.store||{})};if(!Array.isArray(state.store.deposits)||!state.store.deposits.length)state.store.deposits=[0];if(!state.date)state.date=today()}
+// Migrasi aman dari v3.4: data Kasir ke-3 Shift 3 tidak hilang.
+// Dicatat sebagai arsip lama (tidak lagi menjadi slot kasir aktif).
+function migrateLegacyShift3(day){
+ if(!day||!Array.isArray(day.shifts)||!Array.isArray(day.shifts[2]?.cashiers))return day;
+ const cash=day.shifts[2].cashiers;
+ if(cash.length>CASHIER_COUNTS[2]){
+  const legacy=cash.slice(CASHIER_COUNTS[2]).map(clone);
+  const meaningful=legacy.filter((c,i)=>Array.isArray(c.rows)&&c.rows.some(r=>readN(r.pickup)||readN(r.etrans)||readN(r.pln))||String(c.name||'')!=='Kasir '+(i+3));
+  if(meaningful.length)day.legacyShift3Cashiers=[...(day.legacyShift3Cashiers||[]),...meaningful];
+  cash.length=CASHIER_COUNTS[2];
+ }
+ return day;
+}
+function normalize(){
+ if(!Array.isArray(state.shifts))state.shifts=[];
+ migrateLegacyShift3(state);
+ const migrated=state.shifts.length<3;
+ for(let i=0;i<3;i++){
+  if(!state.shifts[i]||typeof state.shifts[i]!=='object')state.shifts[i]=clone(NEW.shifts[i]);
+  if(!Array.isArray(state.shifts[i].cashiers))state.shifts[i].cashiers=[];
+  for(let j=0;j<CASHIER_COUNTS[i];j++){
+   if(!state.shifts[i].cashiers[j]||typeof state.shifts[i].cashiers[j]!=='object')state.shifts[i].cashiers[j]=freshCashier(j);
+   let c=state.shifts[i].cashiers[j];
+   if(!Array.isArray(c.rows)||!c.rows.length)c.rows=[{pickup:0,etrans:0,pln:0}];
+   if(typeof c.name!=='string')c.name='Kasir '+(j+1);
+  }
+  state.shifts[i].cashiers.length=CASHIER_COUNTS[i];
+ }
+ state.shifts.length=3;
+ state.store={...NEW.store,...(state.store||{})};
+ if(migrated){ // Previously Shift 2 was derived from the remaining settlement; keep that allocation.
+  state.store.etransShift2=(+state.store.settleEtrans||0)-(+state.store.etransShift1||0);
+  state.store.plnShift2=(+state.store.settlePln||0)-(+state.store.plnShift1||0);
+ }
+ if(!Array.isArray(state.store.deposits)||!state.store.deposits.length)state.store.deposits=[0];
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(state.date||''))state.date=today();
+}
 normalize();
-function save(){try{localStorage.setItem(DATA_KEY,JSON.stringify(state));localStorage.setItem(HISTORY_KEY,JSON.stringify(history));return true}catch(e){return false}}
-function totals(c){let p=sum(c.rows.map(r=>r.pickup)),e=sum(c.rows.map(r=>r.etrans)),l=sum(c.rows.map(r=>r.pln));return {pickup:p,etrans:e,pln:l,net:p-e-l}}
+history.forEach(migrateLegacyShift3);
+function save(){try{let suffix=(cloud&&cloud.storeId)?'_cloud_'+cloud.storeId:'';localStorage.setItem(DATA_KEY+suffix,JSON.stringify(state));localStorage.setItem(HISTORY_KEY+suffix,JSON.stringify(history));return true}catch(e){return false}}
+function totals(c){let rows=Array.isArray(c&&c.rows)?c.rows:[];let p=sum(rows.map(r=>r.pickup)),e=sum(rows.map(r=>r.etrans)),l=sum(rows.map(r=>r.pln));return {pickup:p,etrans:e,pln:l,net:p-e-l}}
 function rollup(k,si){return sum((si===undefined?state.shifts.flatMap(s=>s.cashiers):state.shifts[si].cashiers).map(c=>totals(c)[k]))}
-function headTotals(){let s=state.store,deposit=sum(s.deposits),subtotal=(+s.sales||0)+(+s.settleEtrans||0)+(+s.settlePln||0),etrans2=(+s.settleEtrans||0)-(+s.etransShift1||0),pln2=(+s.settlePln||0)-(+s.plnShift1||0);return {deposit,subtotal,remainder:subtotal-deposit,etrans2,pln2,diffE:rollup('etrans',0)-etrans2,diffP:rollup('pln',0)-pln2,diffE1:rollup('etrans',0)-(+s.etransShift1||0),diffE2:rollup('etrans',1)-etrans2,diffP1:rollup('pln',0)-(+s.plnShift1||0),diffP2:rollup('pln',1)-pln2}}
-function historyTotal(item){return sum((item.shifts||[]).flatMap(s=>(s.cashiers||[]).map(c=>totals(c).net)))}
+function headTotals(){
+ let s=state.store,deposit=sum(s.deposits),subtotal=(+s.sales||0)+(+s.settleEtrans||0)+(+s.settlePln||0);
+ let e1=(+s.etransShift1||0),e2=(+s.etransShift2||0),p1=(+s.plnShift1||0),p2=(+s.plnShift2||0);
+ let etrans3=(+s.settleEtrans||0)-e1-e2,pln3=(+s.settlePln||0)-p1-p2;
+ return {deposit,subtotal,remainder:subtotal-deposit,etrans2:e2,pln2:p2,etrans3,pln3,
+  diffE:rollup('etrans')-(+s.settleEtrans||0),diffP:rollup('pln')-(+s.settlePln||0),
+  diffE1:rollup('etrans',0)-e1,diffE2:rollup('etrans',1)-e2,diffE3:rollup('etrans',2)-etrans3,
+  diffP1:rollup('pln',0)-p1,diffP2:rollup('pln',1)-p2,diffP3:rollup('pln',2)-pln3};
+}
+function historyTotal(item){return itemSummary(item).net}
 function kpi(label,value,kind,mark){return `<div class="kpi"><div class="kpi-top"><span class="kpi-symbol ${kind}">${mark}</span><span class="kpi-label">${label}</span></div><div class="kpi-value" data-live="${label.replace(/[^a-z]/gi,'')}">${money(value)}</div></div>`}
-function dateBox(){return `<div class="date-box"><span style="color:#a5caff">${icon('calendar',19)}</span><span class="date-name">${esc(niceDate(state.date))}</span><input class="date-control" aria-label="Pilih tanggal perhitungan" type="date" data-date value="${esc(state.date)}"></div>`}
-function dashboard(){let h=headTotals(),v=rollup('net');return `${!stored?'<div class="notice"><strong>Siap digunakan.</strong> Isi data kasir melalui menu Perhitungan. Semua angka dimulai dari nol.</div>':''}${dateBox()}<section class="card hero"><div class="hero-row"><div class="hero-icon">${icon('wallet',27)}</div><div class="grow"><div class="hero-label">TOTAL KLEREK HARI INI</div><div class="hero-value">${money(v)}</div></div></div><div class="hero-bottom"><div>Shift 1<strong>${money(rollup('net',0))}</strong></div><div>Shift 2<strong>${money(rollup('net',1))}</strong></div></div></section><div class="kpi-grid">${kpi('Total Pickup',rollup('pickup'),'green','↗')}${kpi('Total eTrans',rollup('etrans'),'orange','▣')}${kpi('Total PLN',rollup('pln'),'purple','ϟ')}${kpi('Setoran Tunai',h.deposit,'blue','▤')}</div><div class="section-title">Rekap per Kasir <span class="aux">4 kasir · 2 shift</span></div><div class="cash-list">${state.shifts.map((s,i)=>s.cashiers.map((c,j)=>{let n=totals(c).net;return `<button class="cash-line" data-edit="${i},${j}"><span class="avatar ${i===0?(j?'alt1':''):(j?'alt3':'alt2')}">${j+1}</span><span class="grow"><span class="cash-name">${esc(c.name||'Kasir '+(j+1))}</span><span class="cash-shift" style="display:block">Shift ${i+1} · Kasir ${j+1}</span></span><span class="cash-amount ${n<0?'neg':''}">${money(n)}</span><span class="chevron">›</span></button>`}).join('')).join('')}</div><div class="section-title">Akses cepat</div><div class="row-actions"><button class="btn primary" data-go="calc">${icon('calc',17)} Perhitungan</button><button class="btn" data-go="recap">${icon('file',17)} Lihat rekap</button></div><div class="row-actions mt10"><button class="btn" data-action="archive">${icon('save',16)} Simpan riwayat</button><button class="btn" data-action="copy">${icon('copy',16)} Salin rekap</button></div><div class="footer-note">${icon('check',14)} Perubahan disimpan otomatis di browser perangkat ini.<br>Cadangkan data secara berkala dari menu Lainnya.</div>`}
+function dateBox(){return `<div class="date-box"><span style="color:var(--blue)">${icon('calendar',19)}</span><span class="date-name">${esc(niceDate(state.date))}</span><input class="date-control" aria-label="Pilih tanggal perhitungan" type="date" data-date value="${esc(state.date)}"></div>${dateManual?'<div class="manual-date-note">Tanggal dipilih manual. <button class="link-button" data-action="auto-date">Gunakan tanggal otomatis</button></div>':''}`}
+function dashboard(){let h=headTotals(),v=rollup('net');return `${!stored?'<div class="notice"><strong>Siap digunakan.</strong> Isi data kasir melalui Perhitungan.</div>':''}${dateBox()}<div class="shift-night-banner">🌙 <strong>Shift 3:</strong> mulai ${esc(shift3StartLabel(state.date))} pukul <strong>22.00</strong>, dihitung sebagai <strong>${esc(niceDate(state.date))}</strong>.</div>${(state.legacyShift3Cashiers||[]).length?`<div class="notice"><strong>Arsip dari versi sebelumnya:</strong> data Kasir ke-3 Shift 3 (${money(sum(state.legacyShift3Cashiers.map(c=>totals(c).net)))}) masih tersimpan, namun tidak termasuk total 6 slot kasir aktif. Nilai lama tetap termasuk laporan bulanan/ekspor riwayat.</div>`:''}<section class="card hero"><div class="hero-row"><div class="hero-icon">${icon('wallet',27)}</div><div class="grow"><div class="hero-label">TOTAL KLEREK · ${esc(shortDate(state.date))}</div><div class="hero-value">${money(v)}</div></div></div><div class="hero-bottom shift-summary">${state.shifts.map((s,i)=>`<div>Shift ${i+1}<strong>${money(rollup('net',i))}</strong></div>`).join('')}</div></section><div class="kpi-grid">${kpi('Total Pickup',rollup('pickup'),'green','↗')}${kpi('Total eTrans',rollup('etrans'),'orange','▣')}${kpi('Total PLN',rollup('pln'),'purple','ϟ')}${kpi('Setoran Tunai',h.deposit,'blue','▤')}</div><div class="section-title">Rekap per Kasir <span class="aux">6 kasir · 3 shift</span></div><div class="cash-list">${state.shifts.map((s,i)=>s.cashiers.map((c,j)=>{let n=totals(c).net;return `<button class="cash-line" data-edit="${i},${j}"><span class="avatar ${['','alt2','alt3'][i]}">${j+1}</span><span class="grow"><span class="cash-name">${esc(c.name||'Kasir '+(j+1))}</span><span class="cash-shift" style="display:block">Shift ${i+1} · Kasir ${j+1}</span></span><span class="cash-amount ${n<0?'neg':''}">${money(n)}</span><span class="chevron">›</span></button>`}).join('')).join('')}</div><div class="section-title">Akses cepat</div><div class="row-actions"><button class="btn primary" data-go="calc">${icon('calc',17)} Perhitungan</button><button class="btn" data-go="reports">📊 Laporan</button></div><div class="row-actions mt10"><button class="btn" data-action="archive">${icon('save',16)} Simpan riwayat</button><button class="btn" data-action="copy">${icon('copy',16)} Salin rekap</button></div><div class="footer-note">${icon('check',14)} ${esc(cloudNotice())}. Backup JSON secara berkala.</div>`}
 function cashCard(si,ci){let c=state.shifts[si].cashiers[ci],t=totals(c),kl=`${si}_${ci}`;return `<section class="card cash-card"><div class="cash-top"><div class="avatar ${ci?'alt1':''}">${ci+1}</div><div class="grow"><label for="name-${kl}">Kasir ${ci+1} (Shift ${si+1}) · Nama dapat diubah</label><input id="name-${kl}" class="name-field" maxlength="55" aria-label="Nama kasir ${ci+1} shift ${si+1}" data-name="${si},${ci}" value="${esc(c.name)}" placeholder="Nama kasir"></div><span class="tiny-status" id="badge-${kl}">${t.net===0?'SEIMBANG':t.net>0?'LEBIH':'KURANG'}</span></div><div class="row-labels"><span>Pickup</span><span>eTrans</span><span>PLN</span><span></span></div>${c.rows.map((r,ri)=>`<div class="entry">${['pickup','etrans','pln'].map(k=>`<input type="text" inputmode="numeric" autocomplete="off" aria-label="${k} baris ${ri+1} kasir ${ci+1}" data-money="${si},${ci},${ri},${k}" value="${r[k]?fmt(r[k]):''}" placeholder="0">`).join('')}<button class="xrow" data-delete="${si},${ci},${ri}" title="Hapus baris" aria-label="Hapus baris ${ri+1}">×</button></div>`).join('')}<button class="inline-add" data-add="${si},${ci}">＋ Tambah baris</button><div class="cash-totals">${[['pickup','Pickup'],['etrans','eTrans'],['pln','PLN']].map(([k,label])=>`<div><small>Total ${label}</small><b data-live="s${si}c${ci}${k}">${money(t[k])}</b></div>`).join('')}</div><div class="net-box ${t.net<0?'negative':''}" id="netbox-${kl}"><div><div class="net-label">HASIL KLEREK</div><div class="net-hint">Pickup − eTrans − PLN</div></div><div class="net-value" data-live="s${si}c${ci}net">${money(t.net)}</div></div></section>`}
-function calcScreen(){let i=selectedShift;return `<div class="segment" role="group" aria-label="Pilih shift"><button data-shift="0" class="${i===0?'active':''}">Shift 1</button><button data-shift="1" class="${i===1?'active':''}">Shift 2</button></div>${state.shifts[i].cashiers.map((_,j)=>cashCard(i,j)).join('')}<div class="card"><div class="section-title" style="margin:0 0 5px">Total Shift ${i+1}</div>${[['pickup','Pickup'],['etrans','eTrans'],['pln','PLN'],['net','Hasil Klerek']].map(([k,t])=>`<div class="data-row"><span>${t}</span><strong class="${k==='net'?'number':''}" data-live="shift${i+1}${k}">${money(rollup(k,i))}</strong></div>`).join('')}</div><div class="row-actions"><button class="btn" data-action="reset-shift">${icon('reset',17)} Reset Shift</button><button class="btn primary" data-action="archive">${icon('save',17)} Simpan</button></div><div class="notice mt14">Rumus sesuai file Excel: <strong>Klerek = Pickup − eTrans − PLN</strong>. Nilai negatif berarti hasil klerek minus.</div>`}
+function calcScreen(){let i=selectedShift;return `${dateBox()}<div class="segment three" role="group" aria-label="Pilih shift">${CASHIER_COUNTS.map((n,j)=>`<button data-shift="${j}" class="${i===j?'active':''}">Shift ${j+1}<small>${n} kasir</small></button>`).join('')}</div>${i===2?`<div class="notice">🌙 <strong>Shift 3</strong> mulai ${esc(shift3StartLabel(state.date))}, pukul <strong>22.00</strong> dan dicatat sebagai <strong>${esc(niceDate(state.date))}</strong>.${dateManual?' <button class="link-button" data-action="auto-date">Gunakan tanggal otomatis</button>':''}</div>`:''}${state.shifts[i].cashiers.map((_,j)=>cashCard(i,j)).join('')}<div class="card"><div class="section-title" style="margin:0 0 5px">Total Shift ${i+1}</div>${[['pickup','Pickup'],['etrans','eTrans'],['pln','PLN'],['net','Hasil Klerek']].map(([k,t])=>`<div class="data-row"><span>${t}</span><strong class="${k==='net'?'number':''}" data-live="shift${i+1}${k}">${money(rollup(k,i))}</strong></div>`).join('')}</div><div class="row-actions"><button class="btn" data-action="reset-shift">${icon('reset',17)} Reset Shift</button><button class="btn primary" data-action="archive">${icon('save',17)} Simpan</button></div><div class="notice mt14">Rumus: <strong>Klerek = Pickup − eTrans − PLN</strong>. Nominal negatif berarti kurang.</div>`}
 function cashierRecap(si,ci){let c=state.shifts[si].cashiers[ci],t=totals(c);return `<div class="card mini-section"><div class="cash-top" style="margin-bottom:5px"><span class="avatar ${ci?'alt1':''}">${ci+1}</span><div class="grow"><div style="font-weight:800;font-size:14px">${esc(c.name||'Kasir '+(ci+1))}</div><div class="hint">Shift ${si+1} · Kasir ${ci+1}</div></div><button class="icon-button" data-edit="${si},${ci}" aria-label="Edit ${esc(c.name)}">✎</button></div>${[['pickup','Pickup'],['etrans','eTrans'],['pln','PLN'],['net','Klerek']].map(([k,label])=>`<div class="data-row"><span>${label}</span><strong class="${k==='net'?(t.net<0?'negative':'number'):''}">${money(t[k])}</strong></div>`).join('')}</div>`}
-function recapScreen(){return `${dateBox()}<div class="section-title">Rekap per Kasir</div>${state.shifts.map((s,i)=>`<div class="section-title" style="margin:14px 1px 9px;color:#a9c7f8">SHIFT ${i+1} <span class="aux">${money(rollup('net',i))}</span></div>${s.cashiers.map((_,j)=>cashierRecap(i,j)).join('')}`).join('')}<div class="section-title">Total Keseluruhan</div><div class="kpi-grid">${kpi('Total Pickup',rollup('pickup'),'green','↗')}${kpi('Total eTrans',rollup('etrans'),'orange','▣')}${kpi('Total PLN',rollup('pln'),'purple','ϟ')}${kpi('Total Klerek',rollup('net'),'blue','▤')}</div><div class="row-actions"><button class="btn primary" data-action="copy">${icon('copy',17)} Salin Rekap</button><button class="btn" data-action="csv-export">${icon('file',17)} Ekspor CSV</button></div><button class="btn full mt10" data-go="store">Rekap Kepala Toko →</button>`}
+function recapScreen(){return `${dateBox()}<div class="section-title">Rekap per Kasir</div>${state.shifts.map((s,i)=>`<div class="section-title shift-label">SHIFT ${i+1} <span class="aux">${money(rollup('net',i))}</span></div>${i===2?`<p class="hint">Mulai ${esc(shift3StartLabel(state.date))} pukul 22.00, masuk laporan ${esc(niceDate(state.date))}.</p>`:''}${s.cashiers.map((_,j)=>cashierRecap(i,j)).join('')}`).join('')}<div class="section-title">Total Keseluruhan</div><div class="kpi-grid">${kpi('Total Pickup',rollup('pickup'),'green','↗')}${kpi('Total eTrans',rollup('etrans'),'orange','▣')}${kpi('Total PLN',rollup('pln'),'purple','ϟ')}${kpi('Total Klerek',rollup('net'),'blue','▤')}</div><div class="row-actions"><button class="btn primary" data-action="copy">${icon('copy',17)} Salin Rekap</button><button class="btn" data-action="csv-export">${icon('file',17)} Ekspor CSV</button></div><div class="row-actions mt10"><button class="btn" data-action="print-report">📄 PDF</button><button class="btn" data-action="png-report">🖼️ PNG</button><button class="btn" data-action="share-report">↗ Bagikan PNG</button></div><button class="btn full mt10" data-go="store">Rekap Kepala Toko →</button>`}
 function field(label,key,info=''){return `<div class="field"><label class="field-label" for="st-${key}">${esc(label)} ${info?`<span class="hint">${esc(info)}</span>`:''}</label><div class="input-wrap"><span class="prefix">Rp</span><input id="st-${key}" data-store="${key}" type="text" inputmode="numeric" value="${state.store[key]?fmt(state.store[key]):''}" placeholder="0"></div></div>`}
-function storeScreen(){let h=headTotals();return `${dateBox()}<div class="card"><div class="section-title" style="margin:0 0 8px">Sales & Settlement</div>${field('Sales (Report 23–24)','sales')}${field('Settle eTrans','settleEtrans')}${field('Settle PLN','settlePln')}<div class="data-row"><span>Subtotal penjualan</span><strong data-live="subtotal">${money(h.subtotal)}</strong></div><div class="data-row"><span>Total setoran tunai</span><strong data-live="totalDeposit">${money(h.deposit)}</strong></div><div class="box-highlight mt14"><div class="smallcap">SISA HASIL SETELAH SETORAN</div><b data-live="remainder">${money(h.remainder)}</b></div></div><div class="card"><div class="section-title" style="margin:0 0 6px">Setoran Tunai</div>${state.store.deposits.map((v,i)=>`<div class="field" style="display:flex;align-items:end;gap:8px"><div class="grow"><label class="field-label">Setoran ${i+1}</label><div class="input-wrap"><span class="prefix">Rp</span><input data-deposit="${i}" type="text" inputmode="numeric" value="${v?fmt(v):''}" placeholder="0"></div></div><button class="btn danger small" style="min-height:43px" data-del-deposit="${i}" aria-label="Hapus setoran ${i+1}">×</button></div>`).join('')}<button class="inline-add" data-action="add-deposit">＋ Tambah setoran</button></div><div class="card"><div class="section-title" style="margin:0 0 8px">Settlement per Shift</div>${field('eTrans Shift 1 (settlement)','etransShift1')}${field('PLN Shift 1 (settlement)','plnShift1')}<div class="data-row"><span>eTrans Shift 2 (selisih)</span><strong data-live="etrans2">${money(h.etrans2)}</strong></div><div class="data-row"><span>PLN Shift 2 (selisih)</span><strong data-live="pln2">${money(h.pln2)}</strong></div><div class="data-row"><span>Selisih eTrans (rumus Excel asli)</span><strong data-live="diffE">${money(h.diffE)}</strong></div><div class="data-row"><span>Selisih PLN (rumus Excel asli)</span><strong data-live="diffP">${money(h.diffP)}</strong></div><div class="section-title" style="font-size:13px;margin-top:15px">Pengecekan selisih per shift</div>${[['diffE1','eTrans Shift 1'],['diffE2','eTrans Shift 2'],['diffP1','PLN Shift 1'],['diffP2','PLN Shift 2']].map(([k,label])=>`<div class="data-row"><span>${label}</span><strong data-live="${k}">${money(h[k])}</strong></div>`).join('')}</div><div class="notice">Selisih <strong>eTrans dan PLN versi Excel asli</strong> mengikuti referensi sel pada spreadsheet. Untuk audit, bandingkan juga selisih per shift.</div><div class="row-actions"><button class="btn primary" data-action="archive">${icon('save',17)} Simpan</button><button class="btn" data-action="copy">${icon('copy',17)} Salin Rekap</button></div>`}
-function historyScreen(){let filtered=history.map((x,i)=>({x,i})).filter(({x})=>!query||String(x.date||'').includes(query.toLowerCase())||niceDate(x.date||today()).toLowerCase().includes(query.toLowerCase())||(x.shifts||[]).some(s=>(s.cashiers||[]).some(c=>(c.name||'').toLowerCase().includes(query.toLowerCase()))));return `<input class="search-input" data-search="1" aria-label="Cari riwayat" placeholder="⌕  Cari tanggal atau nama kasir..." value="${esc(query)}"><div class="history-controls"><button class="btn primary" data-action="archive">${icon('save',16)} Simpan Hari Ini</button><button class="btn" data-action="json-export">${icon('copy',16)} Backup</button></div><div id="history-list">${historyList(filtered)}</div><div class="notice mt14">Data tersimpan pada penyimpanan lokal browser, tidak pada server. <strong>Backup secara berkala</strong> untuk mencegah kehilangan data.</div>`}
-function historyList(filtered){return filtered.length?filtered.map(({x,i})=>{let n=historyTotal(x);return `<div class="history-row"><span class="menu-ico" style="height:36px;width:36px">${icon('calendar',19)}</span><div class="grow"><div class="history-date">${esc(shortDate(x.date))}</div><div class="hint">4 kasir · 2 shift</div></div><div style="text-align:right"><div class="history-total ${n<0?'neg':''}">${money(n)}</div><div style="display:flex;justify-content:end;gap:7px;margin-top:7px"><button class="btn small" data-restore="${i}">Buka</button><button class="btn small danger" data-remove-history="${i}" aria-label="Hapus riwayat ${esc(x.date)}">×</button></div></div></div>`}).join(''):`<div class="card empty"><div style="font-size:34px">◷</div><strong>${history.length?'Tidak ada hasil pencarian':'Belum ada riwayat'}</strong><div class="hint">Tekan “Simpan Hari Ini” setelah menghitung kasir.</div></div>`}
+function storeScreen(){let h=headTotals();return `${dateBox()}${hasHeadAccess()?'':'<div class="notice"><strong>Hanya baca:</strong> settlement kepala toko bisa diubah oleh akun Kepala Toko/Admin.</div>'}<div class="card"><div class="section-title" style="margin:0 0 8px">Sales & Settlement</div>${field('Sales (Report 23–24)','sales')}${field('Settle eTrans','settleEtrans')}${field('Settle PLN','settlePln')}<div class="data-row"><span>Subtotal penjualan</span><strong data-live="subtotal">${money(h.subtotal)}</strong></div><div class="data-row"><span>Total setoran tunai</span><strong data-live="deposit">${money(h.deposit)}</strong></div><div class="box-highlight mt14"><div class="smallcap">SISA HASIL SETELAH SETORAN</div><b data-live="remainder">${money(h.remainder)}</b></div></div><div class="card"><div class="section-title" style="margin:0 0 6px">Setoran Tunai</div>${state.store.deposits.map((v,i)=>`<div class="field" style="display:flex;align-items:end;gap:8px"><div class="grow"><label class="field-label">Setoran ${i+1}</label><div class="input-wrap"><span class="prefix">Rp</span><input data-deposit="${i}" type="text" inputmode="numeric" value="${v?fmt(v):''}" placeholder="0"></div></div><button class="btn danger small" style="min-height:43px" data-del-deposit="${i}" aria-label="Hapus setoran ${i+1}">×</button></div>`).join('')}<button class="inline-add" data-action="add-deposit">＋ Tambah setoran</button></div><div class="card"><div class="section-title" style="margin:0 0 8px">Settlement per Shift</div>${field('eTrans Shift 1','etransShift1')}${field('PLN Shift 1','plnShift1')}${field('eTrans Shift 2','etransShift2')}${field('PLN Shift 2','plnShift2')}<div class="data-row"><span>eTrans Shift 3 (sisa settlement)</span><strong data-live="etrans3">${money(h.etrans3)}</strong></div><div class="data-row"><span>PLN Shift 3 (sisa settlement)</span><strong data-live="pln3">${money(h.pln3)}</strong></div><div class="section-title" style="font-size:13px;margin-top:15px">Pengecekan selisih per shift</div>${[['diffE1','eTrans Shift 1'],['diffE2','eTrans Shift 2'],['diffE3','eTrans Shift 3'],['diffP1','PLN Shift 1'],['diffP2','PLN Shift 2'],['diffP3','PLN Shift 3']].map(([k,label])=>`<div class="data-row"><span>${label}</span><strong data-live="${k}">${money(h[k])}</strong></div>`).join('')}<div class="line-divider"></div><div class="data-row"><span>Selisih total eTrans</span><strong data-live="diffE">${money(h.diffE)}</strong></div><div class="data-row"><span>Selisih total PLN</span><strong data-live="diffP">${money(h.diffP)}</strong></div></div><div class="notice">Settlement Shift 3 = total settlement − Shift 1 − Shift 2. Selisih total = jumlah transaksi semua kasir − total settlement.</div><div class="row-actions"><button class="btn primary" data-action="archive">${icon('save',17)} Simpan</button><button class="btn" data-action="copy">${icon('copy',17)} Salin Rekap</button></div>`}
+let selectedHistoryMonth=today().slice(0,7);
+function shiftHistoryMonth(n){
+ const d=new Date(selectedHistoryMonth+'-15T12:00:00');d.setMonth(d.getMonth()+n);
+ selectedHistoryMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;render();
+}
+function historyInSelectedMonth(){
+ return history.map((x,i)=>({x,i})).filter(({x})=>String(x.date||'').startsWith(selectedHistoryMonth)).filter(({x})=>
+  !query||String(x.date||'').includes(query)||(niceDate(x.date||today()).toLowerCase().includes(query))||
+  (x.shifts||[]).some(s=>(s.cashiers||[]).some(c=>(c.name||'').toLowerCase().includes(query)))||
+  (x.legacyShift3Cashiers||[]).some(c=>(c.name||'').toLowerCase().includes(query)));
+}
+function historyScreen(){
+ const filtered=historyInSelectedMonth();
+ return `<div class="card"><div class="section-title" style="margin:0 0 10px">📅 Riwayat per Bulan <span class="aux">${filtered.length} hari</span></div><div class="row-actions"><button class="btn" data-history-nav="-1" aria-label="Bulan sebelumnya">◀</button><input class="report-month grow" style="min-width:0;flex:3" type="month" data-history-month value="${esc(selectedHistoryMonth)}" aria-label="Bulan riwayat"><button class="btn" data-history-nav="1" aria-label="Bulan berikutnya">▶</button></div><p class="hint mt10">Menampilkan satu bulan: <strong>${esc(monthLabel(selectedHistoryMonth))}</strong>. Pilih bulan lain untuk melihat arsip lama. Tidak menghapus data di bulan lain.</p></div><input class="search-input" data-search="1" aria-label="Cari riwayat" placeholder="⌕  Cari tanggal atau nama kasir pada bulan ini..." value="${esc(query)}"><div class="history-controls"><button class="btn primary" data-action="archive">${icon('save',16)} Simpan Hari Ini</button><button class="btn" data-action="json-export">${icon('copy',16)} Backup</button></div><button class="btn full mt10" data-action="csv-history-month">${icon('file',16)} Ekspor Riwayat ${esc(monthLabel(selectedHistoryMonth))} ke CSV</button><div id="history-list">${historyList(filtered)}</div><div class="notice mt14">${cloud?.ready?'Riwayat toko disinkronkan ke Supabase setelah koneksi aktif.':'Saat belum masuk cloud, riwayat tersimpan di perangkat ini.'} <strong>Backup secara berkala.</strong> Arsip kasir ke-3 Shift 3 dari versi lama tetap disimpan sebagai data historis, tidak menjadi slot input baru.</div>`;
+}
+function historyList(filtered){return filtered.length?filtered.map(({x,i})=>{let n=historyTotal(x),ncas=(x.shifts||[]).reduce((a,s)=>a+(s.cashiers||[]).length,0);return `<div class="history-row"><span class="menu-ico" style="height:36px;width:36px">${icon('calendar',19)}</span><div class="grow"><div class="history-date">${esc(shortDate(x.date))}</div><div class="hint">${ncas} kasir · ${(x.shifts||[]).length} shift${(x.legacyShift3Cashiers||[]).length?' · + arsip kasir lama':''}</div></div><div style="text-align:right"><div class="history-total ${n<0?'neg':''}">${money(n)}</div><div style="display:flex;justify-content:end;gap:7px;margin-top:7px"><button class="btn small" data-restore="${i}">Buka</button><button class="btn small danger" data-remove-history="${i}" aria-label="Hapus riwayat ${esc(x.date)}">×</button></div></div></div>`}).join(''):`<div class="card empty"><div style="font-size:34px">◷</div><strong>${history.length?'Tidak ada riwayat yang cocok di bulan ini':'Belum ada riwayat'}</strong><div class="hint">Pilih bulan lain, atau tekan “Simpan Hari Ini” setelah menghitung kasir.</div></div>`}
 function menuItem(symbol,label,desc,action,color=''){return `<button class="menu-item" data-action="${action}"><span class="menu-ico ${color}">${symbol}</span><span class="grow"><span class="menu-title">${label}</span><span class="menu-sub" style="display:block">${desc}</span></span><span class="chevron">›</span></button>`}
-function moreScreen(){return `${menuItem(icon('plus',20),'Pasang ke Layar Utama','Buka seperti aplikasi, tanpa bilah Chrome','install-pwa','green')}${menuItem('🎨','Tema & Tampilan','Ganti warna dan ukuran UI','open-settings','purple')}${menuItem(icon('calendar',20),'Ganti Tanggal','Pilih tanggal data aktif','change-date')}${menuItem(icon('calc',20),'Rekap per Kasir','Total Pickup, eTrans, PLN, dan Klerek','open-recap')}${menuItem(icon('wallet',20),'Input Kepala Toko','Sales report, settlement, dan setoran','open-store','orange')}${menuItem(icon('save',20),'Simpan ke Riwayat','Simpan perhitungan hari ini','archive','green')}${menuItem(icon('file',20),'Backup Data ke File','Unduh cadangan JSON ke perangkat','json-export','green')}${menuItem(icon('copy',20),'Salin Kode Cadangan','Salin data jika unduhan tidak tersedia','json-copy','gray')}${menuItem(icon('file',20),'Pulihkan Data dari File','Pilih cadangan JSON dari perangkat','json-import','green')}${menuItem(icon('copy',20),'Tempel Kode Cadangan','Pulihkan backup salinan dari versi lama','json-paste','gray')}${menuItem(icon('file',20),'Ekspor ke Excel (CSV)','Unduh laporan yang bisa dibuka Excel','csv-export','orange')}${menuItem(icon('copy',20),'Salin Rekap','Salin laporan untuk WhatsApp','copy','purple')}${menuItem(icon('settings',20),'Pengaturan & Data','Tema, tampilan, dan penyimpanan','open-settings','gray')}<div class="footer-note">Klerek Kasir · Multi Tema v3.1<br>Offline · Semua data dikelola di perangkat Anda.</div>`}
+function moreScreen(){return `${menuItem('☁️','Cloud Supabase & Multiuser','Login, undangan toko, dan sinkronisasi antar HP','open-cloud','blue')}${menuItem('📊','Dashboard & Laporan','Grafik harian, bulanan dan ringkasan shift','open-reports','green')}${menuItem('👥','Manajemen Kasir','Nama dan jadwal untuk 6 kasir, 3 shift','open-staff','purple')}${menuItem('🔒','Keamanan PIN','Atur PIN, kunci aplikasi','open-security','orange')}${menuItem('🖼️','Bagikan Laporan PNG','Bagikan gambar melalui WhatsApp','share-report','green')}${menuItem('📄','Cetak Laporan PDF','Gunakan fitur Simpan sebagai PDF','print-report','orange')}${menuItem('🎨','Tema & Tampilan','6 warna dan 3 pilihan ukuran','open-settings','purple')}${menuItem(icon('wallet',20),'Rekap Kepala Toko','Sales, settlement, dan setoran 3 shift','open-store','orange')}${menuItem(icon('save',20),'Simpan ke Riwayat','Arsipkan perhitungan tanggal kerja','archive','green')}${menuItem(icon('file',20),'Backup Data JSON','Unduh cadangan untuk pindah perangkat','json-export','green')}${menuItem(icon('copy',20),'Salin Kode Cadangan','Salin data jika unduhan tidak tersedia','json-copy')}${menuItem(icon('file',20),'Pulihkan Data JSON','Impor data dari versi lama','json-import','green')}${menuItem(icon('copy',20),'Tempel Kode Cadangan','Pulihkan backup salinan','json-paste')}${menuItem(icon('file',20),'Ekspor CSV Tanggal Aktif','Untuk Excel','csv-export','orange')}${menuItem(icon('file',20),'Ekspor Seluruh Riwayat','Semua tanggal, plus data aktif','csv-history','green')}${menuItem(icon('reset',20),'Periksa Pembaruan','Cek versi aplikasi terbaru','check-update','blue')}${menuItem(icon('settings',20),'Pengaturan & Data','Instal, tema dan hapus data','open-settings')}<div class="footer-note">Klerek Kasir v${APP_VERSION} · Cloud multiuser + penyimpanan lokal</div>`}
 
 function appearanceScreen(){
  let themeCards=THEMES.map(t=>`<button type="button" class="theme-choice ${preferences.theme===t.id?'is-active':''}" data-theme="${t.id}" aria-label="Pilih tema ${t.name}" aria-pressed="${preferences.theme===t.id}"><div class="swatches">${t.sw.map(c=>`<i style="background:${c}"></i>`).join('')}</div>${preferences.theme===t.id?'<span class="selected-check">✓</span>':''}<div class="theme-name">${t.name}</div><div class="theme-description">${t.desc}</div></button>`).join('');
  let layouts=LAYOUTS.map(t=>`<button type="button" class="layout-choice ${preferences.layout===t.id?'is-active':''}" data-layout="${t.id}" aria-label="Tampilan ${t.name}" aria-pressed="${preferences.layout===t.id}"><div class="layout-pictogram"><i></i><i></i><i></i></div><div class="layout-name">${t.name}</div><div class="layout-help">${t.desc}</div></button>`).join('');
  return `<div class="card"><div class="section-title" style="margin:0 0 5px">🎨 Ganti Tema</div><p class="appearance-intro">Pilih warna aplikasi. Perubahan terlihat langsung dan pilihan disimpan otomatis.</p><div class="theme-grid">${themeCards}</div></div><div class="card"><div class="section-title" style="margin:0 0 5px">📱 Gaya Tampilan (UI)</div><p class="appearance-intro">Ubah ukuran kartu, tombol, serta jarak antarbagian.</p><div class="layout-grid">${layouts}</div><div class="appearance-note">✓ Mengganti tema atau gaya tampilan tidak mengubah nominal maupun riwayat kasir.</div></div>`;
 }
-function settingsScreen(){return `<div class="card"><div class="section-title" style="margin-top:0">📱 Instal Aplikasi Offline</div><p class="hint">Setelah PWA dipasang dari situs HTTPS, perhitungan dapat digunakan tanpa koneksi internet. Data disimpan hanya di perangkat ini.</p><button class="btn full primary" data-action="install-pwa">${icon('plus',17)} Pasang di Layar Utama</button></div>${appearanceScreen()}<div class="card"><div class="section-title" style="margin-top:0">Penyimpanan</div><div class="data-row"><span>Mode</span><strong>Offline</strong></div><div class="data-row"><span>Riwayat tersimpan</span><strong>${history.length} hari</strong></div><div class="data-row"><span>Rumus</span><strong>Pickup − eTrans − PLN</strong></div><div class="hint mt14">Penyimpanan otomatis menggunakan <strong>localStorage</strong>. Saat file HTML dipindah, diganti nama, dibuka di browser lain, atau data browser dihapus, data lama mungkin tidak terbaca. Simpan backup sebagai file JSON.</div></div><div class="card"><div class="section-title" style="margin-top:0">Kelola Data</div><button class="btn full primary" data-action="new">${icon('plus',17)} Mulai Perhitungan Baru</button><button class="btn full mt10" data-action="json-export">${icon('save',17)} Backup Sekarang</button><button class="btn full mt10 danger" data-action="erase">${icon('trash',17)} Hapus Seluruh Data</button></div>`}
-const tabs=[['dashboard','Beranda','home'],['calc','Perhitungan','calc'],['history','Riwayat','clock'],['more','Lainnya','dots']];
-function header(){if(page==='dashboard')return `<div class="brandrow"><div class="logo">${icon('calc',30)}</div><div class="grow"><div class="brandtitle">KLEREK KASIR</div><div class="brandsub">Perhitungan Kasir Harian · Offline</div></div><button class="icon-button" data-go="settings" aria-label="Pengaturan">${icon('settings',20)}</button></div>`;let titles={calc:'Perhitungan Kasir',recap:'Rekap Kasir',store:'Rekap Kepala Toko',history:'Riwayat Perhitungan',more:'Lainnya',settings:'Pengaturan'};return `<div class="page-head"><button class="back" data-go="${['recap','store','settings'].includes(page)?'more':'dashboard'}" aria-label="Kembali">${icon('back',24)}</button><div class="grow"><div class="page-title">${titles[page]}</div><div class="page-subtitle">${page==='calc'?'Input kasir Shift 1 dan Shift 2':page==='history'?'Riwayat tersimpan di perangkat':'KLEREK KASIR · Multi Tema'}</div></div><span class="saved">● Offline</span></div>`}
-function render(){document.getElementById('header').innerHTML=header();document.getElementById('nav').innerHTML=tabs.map(([id,name,ico])=>`<button class="nav ${page===id||((page==='recap'||page==='store')&&id==='more')?'active':''}" data-go="${id}" aria-label="${name}">${icon(ico,23)}<span>${name}</span></button>`).join('');document.getElementById('screen').innerHTML=page==='dashboard'?dashboard():page==='calc'?calcScreen():page==='history'?historyScreen():page==='recap'?recapScreen():page==='store'?storeScreen():page==='settings'?settingsScreen():moreScreen()}
+function settingsScreen(){return `<div class="card"><div class="section-title" style="margin-top:0">📱 Instal Aplikasi Offline</div><p class="hint">Setelah terpasang dari situs HTTPS, perhitungan dan ekspor tetap bekerja offline.</p><button class="btn full primary" data-action="install-pwa">${icon('plus',17)} Pasang di Layar Utama</button></div>${appearanceScreen()}<div class="card"><div class="section-title" style="margin-top:0">Pengaturan cepat</div><div class="row-actions"><button class="btn" data-go="staff">👥 Kasir</button><button class="btn" data-go="security">🔒 PIN</button></div><div class="data-row"><span>Versi aplikasi</span><strong>v${APP_VERSION}</strong></div><div class="data-row"><span>Riwayat</span><strong>${history.length} hari</strong></div><div class="data-row"><span>Jam mulai Shift 3</span><strong>22.00 hari sebelumnya</strong></div><p class="hint">Mode lokal memakai localStorage. Jika Cloud Supabase telah diaktifkan, data toko dibagikan antar pengguna terotorisasi. Backup data secara berkala.</p></div><div class="card"><div class="section-title" style="margin-top:0">Kelola Data</div><button class="btn full primary" data-action="new">${icon('plus',17)} Mulai Perhitungan Baru</button><button class="btn full mt10" data-action="json-export">${icon('save',17)} Backup Sekarang</button><button class="btn full mt10" data-action="csv-history">${icon('file',17)} Ekspor Seluruh Riwayat</button><button class="btn full mt10" data-action="check-update">${icon('reset',17)} Periksa Pembaruan</button><button class="btn full mt10 danger" data-action="erase">${icon('trash',17)} Hapus Seluruh Data</button></div>`}
+
+/* v3.3: shift and date model. Active date = accounting date, never start date. */
+const STAFF_KEY='klerek_kasir_staff_v1',HOURS_KEY='klerek_kasir_hours_v1',PIN_KEY='klerek_kasir_pin_v1';
+const addDays=(str,n)=>{let d=new Date(str+'T12:00:00');d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const shift3StartLabel=d=>{let s=addDays(d,-1);return new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'short'}).format(new Date(s+'T12:00:00'))};
+const businessDateFor=(si,now=new Date())=>{let s=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;return si===2&&now.getHours()>=22?addDays(s,1):s};
+let dateManual=false;
+let staffNames=state.shifts.map(s=>s.cashiers.map(c=>c.name));
+let shiftHours=[{start:'',end:''},{start:'',end:''},{start:'22:00',end:''}];
+function validStaff(names){return CASHIER_COUNTS.map((n,i)=>Array.from({length:n},(_,j)=>String(names?.[i]?.[j]||'Kasir '+(j+1)).slice(0,55)))}
+function validHours(hours){return [0,1].map(i=>({start:/^\d{2}:\d{2}$/.test(hours?.[i]?.start||'')?hours[i].start:'',end:/^\d{2}:\d{2}$/.test(hours?.[i]?.end||'')?hours[i].end:''})).concat([{start:'22:00',end:''}])}
+try{let s=JSON.parse(localStorage.getItem(STAFF_KEY)||'null');if(Array.isArray(s))staffNames=validStaff(s);let h=JSON.parse(localStorage.getItem(HOURS_KEY)||'null');if(Array.isArray(h))shiftHours=validHours(h)}catch(e){}
+function saveStaff(){try{let suffix=cloud?.storeId?'_cloud_'+cloud.storeId:'';localStorage.setItem(STAFF_KEY+suffix,JSON.stringify(validStaff(staffNames)));localStorage.setItem(HOURS_KEY+suffix,JSON.stringify(validHours(shiftHours)))}catch(e){notify('Gagal menyimpan pengaturan kasir')}}
+function switchDay(target){
+ if(state.date===target)return false;
+ // Save date that is being left, so switching 22:00 Thu -> accounting Fri never loses Thu.
+ history=history.filter(s=>s.date!==state.date);
+ history.unshift(clone(state));
+ let existing=history.find(s=>s.date===target);
+ if(existing){state=clone(existing);normalize()}else{state=clone(NEW);state.date=target;state.shifts.forEach((s,i)=>s.cashiers.forEach((c,j)=>c.name=staffNames[i]?.[j]||c.name))}
+ history=history.slice(0,365);stored=true;save();return true;
+}
+function prepareShiftDate(si){if(dateManual)return;let desired=businessDateFor(si);if(switchDay(desired))notify('Tanggal kerja otomatis: '+shortDate(desired))}
+// Recover last day's unsaved working session as a history entry when the app is opened later.
+if(state.date!==businessDateFor(selectedShift))switchDay(businessDateFor(selectedShift));
+function allDays(){let m=new Map();history.forEach(s=>{if(s&&/^\d{4}-\d{2}-\d{2}$/.test(s.date||''))m.set(s.date,s)});m.set(state.date,state);return [...m.values()].sort((a,b)=>a.date.localeCompare(b.date))}
+function itemSummary(day){let out={pickup:0,etrans:0,pln:0,net:0};[...(day.shifts||[]).flatMap(s=>s.cashiers||[]),...(day.legacyShift3Cashiers||[])].forEach(c=>{let t=totals(c);Object.keys(out).forEach(k=>out[k]+=t[k])});return out}
+function csvFromRows(lines){return '\uFEFFsep=;\r\n'+lines.map(row=>row.map(v=>{let z=String(v??'');if(/^[=+@-]/.test(z)&&!/^-[0-9]+$/.test(z))z="'"+z;return '"'+z.replace(/"/g,'""')+'"'}).join(';')).join('\r\n')}
+
+function staffScreen(){return `${dateBox()}<div class="notice">Susunan tetap: <strong>Shift 1 = 2 kasir</strong>, <strong>Shift 2 = 2 kasir</strong>, <strong>Shift 3 = 2 kasir</strong>. Nama baru berlaku juga untuk tanggal kerja berikutnya, bukan mengubah riwayat lama.</div>${CASHIER_COUNTS.map((n,i)=>`<section class="card"><div class="section-title" style="margin:0 0 10px">Shift ${i+1} <span class="aux">${n} kasir</span></div>${staffNames[i].map((name,j)=>`<div class="field"><label class="field-label" for="staff${i}-${j}">Kasir ${j+1}</label><div class="input-wrap"><input id="staff${i}-${j}" class="staff-input" data-staff-name="${i},${j}" value="${esc(name)}" maxlength="55" placeholder="Nama kasir"></div></div>`).join('')}${i===2?`<div class="notice">🌙 Mulai tetap <strong>22.00 hari sebelumnya</strong> (tanggal transaksi dicatat ke hari berikutnya). Untuk ${esc(shortDate(state.date))}: mulai ${esc(shift3StartLabel(state.date))} pukul 22.00.</div>`:`<div class="time-grid"><label class="field-label">Jam mulai (opsional)<input type="time" data-shift-time="${i},start" value="${esc(shiftHours[i].start)}"></label><label class="field-label">Jam selesai (opsional)<input type="time" data-shift-time="${i},end" value="${esc(shiftHours[i].end)}"></label></div>`}</section>`).join('')}<p class="hint">Tampilan jam Shift 1 dan 2 hanya sebagai catatan jadwal. Tidak mengubah rumus keuangan.</p>`}
+
+let selectedMonth=today().slice(0,7);
+function monthLabel(m){return new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric'}).format(new Date(m+'-15T12:00:00'))}
+function monthTotals(month){return allDays().filter(x=>x.date.startsWith(month)).map(itemSummary).reduce((acc,o)=>{for(let k of Object.keys(acc))acc[k]+=o[k];return acc},{pickup:0,etrans:0,pln:0,net:0})}
+function barGraph(entries,labelField,maxBars=31){
+ if(!entries.length)return '<div class="empty-graph">Belum ada transaksi pada periode ini.</div>';
+ let data=entries.slice(-maxBars),positive=data.some(d=>d.value>0),negative=data.some(d=>d.value<0);
+ let baseline=positive&&negative?86:negative?24:132;
+ let max=Math.max(1,...data.map(d=>Math.abs(d.value))),barW=Math.max(5,Math.min(22,304/data.length-5)),step=304/data.length;
+ let available=positive&&negative?64:108;
+ let paths=data.map((d,i)=>{let h=d.value===0?0:Math.max(3,Math.abs(d.value)/max*available);let x=12+i*step+(step-barW)/2,y=d.value>=0?baseline-h:baseline;let color=d.value<0?'var(--red)':'var(--blue)';return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="${color}"><title>${esc(d.label)}: ${esc(money(d.value))}</title></rect>`}).join('');
+ let ticks=data.map((d,i)=>{if(i%Math.max(1,Math.ceil(data.length/7))!==0&&i!==data.length-1)return '';return `<text x="${(12+i*step+step/2).toFixed(1)}" y="166" font-size="9" text-anchor="middle" fill="var(--muted)">${esc(d[labelField])}</text>`}).join('');
+ return `<div class="chart-wrap"><svg viewBox="0 0 320 174" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Grafik batang transaksi"><line x1="10" y1="${baseline}" x2="316" y2="${baseline}" stroke="var(--border)"/>${paths}${ticks}</svg></div>`;
+}
+function reportsScreen(){let records=allDays(),days=records.filter(s=>s.date.startsWith(selectedMonth)),total=monthTotals(selectedMonth),months=Array.from({length:6},(_,i)=>{let d=new Date(today().slice(0,7)+'-15T12:00:00');d.setMonth(d.getMonth()-(5-i));return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`})
+ let daily=days.map(x=>({label:shortDate(x.date),day:x.date.slice(-2),value:itemSummary(x).net}));
+ let monthValues=months.map(m=>({label:monthLabel(m),short:m.slice(5),value:monthTotals(m).net}));
+ return `<div class="card"><div class="section-title" style="margin:0 0 9px">📅 Periode Laporan</div><input class="report-month" type="month" data-month value="${esc(selectedMonth)}"><div class="hint mt10">Dari tanggal aktif dan riwayat tersimpan (tanggal yang sama tidak dihitung dua kali).</div></div><div class="section-title">Rekap ${esc(monthLabel(selectedMonth))}</div><div class="kpi-grid">${kpi('Pickup',total.pickup,'green','↗')}${kpi('eTrans',total.etrans,'orange','▣')}${kpi('PLN',total.pln,'purple','ϟ')}${kpi('Klerek',total.net,'blue','▤')}</div><div class="card"><div class="section-title" style="margin:0 0 12px">Grafik Harian · Klerek <span class="aux">${days.length} hari</span></div>${barGraph(daily,'day')}<div class="chart-foot">Birunya positif, merah berarti klerek negatif.</div></div><div class="card"><div class="section-title" style="margin:0 0 10px">Grafik Bulanan · 6 Bulan</div>${barGraph(monthValues,'short',6)}<div class="chart-foot">Nilai total klerek per bulan. ${esc(monthLabel(selectedMonth))} dipilih di atas.</div></div><div class="card"><div class="section-title" style="margin:0 0 10px">Rincian per Hari</div>${days.length?days.map(x=>{let v=itemSummary(x);return `<div class="data-row"><span>${esc(shortDate(x.date))}</span><strong>${money(v.net)}</strong></div>`}).join(''):'<div class="hint">Belum ada data di bulan ini.</div>'}</div><div class="row-actions"><button class="btn primary" data-action="csv-month">⬇ CSV Bulan Ini</button><button class="btn" data-action="print-month">📄 Cetak PDF</button></div>`;
+}
+function monthlyCSV(){let rows=[['Tanggal Kerja','Pickup','eTrans','PLN','Klerek']];allDays().filter(x=>x.date.startsWith(selectedMonth)).forEach(x=>{let a=itemSummary(x);rows.push([x.date,a.pickup,a.etrans,a.pln,a.net])});let v=monthTotals(selectedMonth);rows.push(['TOTAL',v.pickup,v.etrans,v.pln,v.net]);download(csvFromRows(rows),'Laporan_Bulanan_'+selectedMonth+'.csv','text/csv;charset=utf-8')}
+
+function reportHTML(monthly=false){let body;if(monthly){let entries=allDays().filter(x=>x.date.startsWith(selectedMonth));let v=monthTotals(selectedMonth);body=`<h1>Laporan Bulanan Klerek Kasir</h1><p>Periode: ${esc(monthLabel(selectedMonth))}</p><table><thead><tr><th>Tanggal Kerja</th><th>Pickup</th><th>eTrans</th><th>PLN</th><th>Klerek</th></tr></thead><tbody>${entries.map(x=>{let a=itemSummary(x);return `<tr><td>${esc(x.date)}</td>${['pickup','etrans','pln','net'].map(k=>`<td>${esc(money(a[k]))}</td>`).join('')}</tr>`}).join('')}<tr class="total"><td>TOTAL</td>${['pickup','etrans','pln','net'].map(k=>`<td>${esc(money(v[k]))}</td>`).join('')}</tr></tbody></table>`}else{body=`<h1>Rekap Harian Klerek Kasir</h1><p>Tanggal kerja: ${esc(niceDate(state.date))}</p><p>Shift 3 mulai ${esc(shift3StartLabel(state.date))} pukul 22.00, dihitung pada tanggal kerja di atas.</p><table><thead><tr><th>Shift</th><th>Kasir</th><th>Pickup</th><th>eTrans</th><th>PLN</th><th>Klerek</th></tr></thead><tbody>${state.shifts.map((s,i)=>s.cashiers.map(c=>{let x=totals(c);return `<tr><td>${i+1}</td><td>${esc(c.name)}</td>${['pickup','etrans','pln','net'].map(k=>`<td>${esc(money(x[k]))}</td>`).join('')}</tr>`}).join('')).join('')}<tr class="total"><td colspan="2">TOTAL</td>${['pickup','etrans','pln','net'].map(k=>`<td>${esc(money(rollup(k)))}</td>`).join('')}</tr></tbody></table>`}return `<div class="print-doc"><div class="print-brand">KLEREK KASIR · v${APP_VERSION}</div>${body}<p class="print-note">Dokumen dibuat dari data lokal perangkat pada ${esc(niceDate(today()))}. Rumus: Pickup − eTrans − PLN.</p></div>`}
+function printReport(monthly=false){let root=document.getElementById('print-report');root.innerHTML=reportHTML(monthly);root.hidden=false;const clean=()=>{root.hidden=true;root.innerHTML=''};window.addEventListener('afterprint',clean,{once:true});window.print();setTimeout(clean,30000)}
+function exportReportPNG(share){
+ const detail=state.shifts.flatMap((s,i)=>s.cashiers.map(c=>({shift:i+1,name:c.name,...totals(c)})));
+ const canvas=document.createElement('canvas'),width=1080,height=450+detail.length*82;canvas.width=width;canvas.height=height;
+ const ctx=canvas.getContext('2d');if(!ctx){notify('Perangkat tidak mendukung gambar laporan');return}
+ ctx.fillStyle='#f4f8ff';ctx.fillRect(0,0,width,height);ctx.fillStyle='#0e274b';ctx.fillRect(0,0,width,218);
+ ctx.textBaseline='top';ctx.fillStyle='#8ac5ff';ctx.font='bold 28px system-ui';ctx.fillText('KLEREK KASIR  •  LAPORAN HARIAN',48,38);
+ ctx.fillStyle='#fff';ctx.font='bold 45px system-ui';ctx.fillText(shortDate(state.date),48,91);
+ ctx.font='24px system-ui';ctx.fillStyle='#cbdfff';ctx.fillText('Shift 3: mulai '+shift3StartLabel(state.date)+' pukul 22.00',48,163);
+ let y=258;ctx.fillStyle='#476083';ctx.font='bold 24px system-ui';ctx.fillText('SHIFT / NAMA',44,y);ctx.fillText('PICKUP',500,y);ctx.fillText('KLEREK',820,y);y+=48;
+ detail.forEach((c,j)=>{if(j%2===0){ctx.fillStyle='#e7effb';ctx.fillRect(25,y-12,1030,75)}ctx.font='bold 24px system-ui';ctx.fillStyle='#182b45';ctx.fillText('S'+c.shift+' · '+String(c.name||'Kasir').slice(0,21),44,y);ctx.fillText(fmt(c.pickup),500,y);ctx.fillStyle=c.net<0?'#bc4053':'#087a56';ctx.fillText(fmt(c.net),820,y);y+=82});
+ ctx.fillStyle='#0e274b';ctx.fillRect(0,height-112,width,112);ctx.fillStyle='#fff';ctx.font='bold 28px system-ui';ctx.fillText('TOTAL KLEREK',45,height-75);ctx.font='bold 33px system-ui';ctx.fillText(money(rollup('net')),690,height-78);
+ canvas.toBlob(async blob=>{if(!blob){notify('Gagal membuat PNG');return}let name='Rekap_Klerek_'+state.date+'.png';if(share&&navigator.share&&typeof File==='function')try{let f=new File([blob],name,{type:'image/png'});if(!navigator.canShare||navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Laporan Klerek Kasir '+state.date});return}}catch(e){if(e.name==='AbortError')return}
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);notify(share?'Gambar PNG disimpan; bagikan dari Galeri/Download.':'Gambar PNG disimpan ke Download.')},'image/png');
+}
+
+let pinConfig=null,pinLocked=false,pinFailures=0,lastUserActivity=Date.now();
+try{let p=JSON.parse(localStorage.getItem(PIN_KEY)||'null');if(p&&p.salt&&p.hash)pinConfig=p}catch(e){}
+pinLocked=!!pinConfig;
+function syncLockScreen(){let el=document.getElementById('pin-overlay');if(!el)return;el.hidden=!pinLocked;document.body.classList.toggle('pin-locked',pinLocked);if(pinLocked){const input=document.getElementById('pin-unlock');if(input&&document.activeElement!==input)input.value=''}}
+async function hashPin(pin,salt){if(!crypto?.subtle)throw Error('crypto unsupported');let bytes=new TextEncoder().encode(salt+':'+pin);let digest=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+function lockNow(){if(!pinConfig){notify('Atur PIN dahulu');return}pinLocked=true;syncLockScreen()}
+async function unlockPin(){let v=document.getElementById('pin-unlock').value,msg=document.getElementById('pin-error');if(pinFailures>=5){msg.textContent='Terlalu banyak percobaan. Tutup dan buka lagi aplikasi.';return}try{let match=await hashPin(v,pinConfig.salt);if(match===pinConfig.hash){pinLocked=false;pinFailures=0;lastUserActivity=Date.now();msg.textContent='';syncLockScreen();notify('Aplikasi terbuka')}else{pinFailures++;msg.textContent='PIN salah ('+pinFailures+'/5).';document.getElementById('pin-unlock').value=''}}catch(e){msg.textContent='Gagal memverifikasi PIN'}}
+async function setPinFlow(){let v=prompt('Buat PIN 4–6 angka (jangan gunakan PIN rekening):','');if(v===null)return;if(!/^\d{4,6}$/.test(v)){notify('PIN harus 4–6 angka');return}let again=prompt('Ulangi PIN baru:','');if(v!==again){notify('Konfirmasi PIN tidak sama');return}if(pinConfig){let old=prompt('Masukkan PIN lama untuk mengganti:','');if(old===null)return;if(await hashPin(old,pinConfig.salt)!==pinConfig.hash){notify('PIN lama salah');return}}try{let salt=[...crypto.getRandomValues(new Uint8Array(16))].map(v=>v.toString(16).padStart(2,'0')).join('');pinConfig={salt,hash:await hashPin(v,salt)};localStorage.setItem(PIN_KEY,JSON.stringify(pinConfig));render();notify('PIN aktif; kunci aplikasi lewat tombol Kunci Sekarang')}catch(e){notify('PIN membutuhkan koneksi aman HTTPS/localhost')}}
+async function removePinFlow(){if(!pinConfig)return;let v=prompt('Masukkan PIN untuk menonaktifkan:','');if(v===null)return;if(await hashPin(v,pinConfig.salt)!==pinConfig.hash){notify('PIN salah');return}if(confirm('Nonaktifkan PIN perangkat ini?')){localStorage.removeItem(PIN_KEY);pinConfig=null;pinLocked=false;render();notify('PIN dinonaktifkan')}}
+function securityScreen(){return `<div class="card"><div class="section-title" style="margin-top:0">🔒 Keamanan Perangkat</div><div class="data-row"><span>Status PIN</span><strong>${pinConfig?'Aktif':'Belum diaktifkan'}</strong></div><p class="hint">Gunakan PIN 4–6 angka untuk membatasi akses dari tampilan aplikasi. Kunci otomatis setelah 5 menit tidak aktif. <strong>PIN hanya kunci layar, bukan enkripsi data lokal</strong>. Tidak termasuk dalam backup JSON.</p><button class="btn full primary" data-action="pin-setup">${pinConfig?'Ubah PIN':'Aktifkan PIN'}</button>${pinConfig?`<button class="btn full mt10" data-action="lock-now">🔒 Kunci Sekarang</button><button class="btn full mt10 danger" data-action="pin-remove">Nonaktifkan PIN</button>`:''}</div><div class="notice">Jangan gunakan PIN keuangan yang sama. Data masih bisa dilihat melalui alat browser pada perangkat yang memiliki akses. Buat backup sebelum menghapus data situs.</div>`}
+setInterval(()=>{if(pinConfig&&!pinLocked&&Date.now()-lastUserActivity>5*60*1000){pinLocked=true;syncLockScreen()}},30000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&pinConfig&&!pinLocked&&Date.now()-lastUserActivity>5*60*1000){pinLocked=true;syncLockScreen()}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&pinLocked&&e.target.id==='pin-unlock')unlockPin()});
+
+const tabs=[['dashboard','Beranda','home'],['calc','Hitung','calc'],['reports','Laporan','file'],['history','Riwayat','clock'],['more','Lainnya','dots']];
+function header(){if(page==='dashboard')return `<div class="brandrow"><div class="logo">${icon('calc',30)}</div><div class="grow"><div class="brandtitle">KLEREK KASIR</div><div class="brandsub">3 Shift · 6 Kasir · Cloud</div><div id="connection-status" class="connection-pill" role="status" aria-live="polite"><span class="connection-dot"></span><span>Memeriksa koneksi</span></div></div><button class="icon-button" data-go="settings" aria-label="Pengaturan">${icon('settings',20)}</button></div>`;let titles={cloud:'Cloud Supabase',calc:'Perhitungan Kasir',recap:'Rekap Kasir',store:'Rekap Kepala Toko',reports:'Dashboard Laporan',staff:'Manajemen Kasir',security:'Keamanan PIN',history:'Riwayat Perhitungan',more:'Lainnya',settings:'Pengaturan'};return `<div class="page-head"><button class="back" data-go="${['recap','store','settings','staff','security','cloud'].includes(page)?'more':'dashboard'}" aria-label="Kembali">${icon('back',24)}</button><div class="grow"><div class="page-title">${titles[page]||'KLEREK KASIR'}</div><div class="page-subtitle">${page==='calc'?'Shift 1: 2 · Shift 2: 2 · Shift 3: 2':page==='history'?'Riwayat per bulan':'v'+APP_VERSION+' · Cloud/Offline'}</div></div><span class="saved">● Lokal</span></div>`}
+function render(){document.getElementById('header').innerHTML=header();document.getElementById('nav').innerHTML=tabs.map(([id,name,ico])=>`<button class="nav ${page===id||((page==='recap'||page==='store'||page==='settings'||page==='staff'||page==='security')&&id==='more')?'active':''}" data-go="${id}" aria-label="${name}">${icon(ico,23)}<span>${name}</span></button>`).join('');document.getElementById('screen').innerHTML=page==='cloud'?cloudPane():page==='dashboard'?dashboard():page==='calc'?calcScreen():page==='history'?historyScreen():page==='recap'?recapScreen():page==='store'?storeScreen():page==='settings'?settingsScreen():page==='reports'?reportsScreen():page==='staff'?staffScreen():page==='security'?securityScreen():moreScreen();cloudUpdateBadge();if(cloud?.ready&&!hasHeadAccess()&&(page==='store'||page==='staff'))document.querySelectorAll('#screen input[data-store],#screen input[data-deposit],#screen input[data-staff-name],#screen input[data-shift-time],#screen button[data-action="add-deposit"],#screen button[data-del-deposit]').forEach(el=>el.disabled=true);syncLockScreen();}
 function navigate(s){page=s;render();window.scrollTo(0,0)}
+function updateConnectionStatus(){
+ const badge=document.getElementById('connection-status');if(!badge)return;
+ const offline=navigator.onLine===false;
+ badge.classList.toggle('is-offline',offline);
+ const label=badge.querySelector('span:last-child');
+ if(label)label.textContent=cloudNotice();
+}
+window.addEventListener('online',updateConnectionStatus);
+window.addEventListener('offline',updateConnectionStatus);
 function refresh(){stored=true;if(page==='calc'){let si=selectedShift;state.shifts[si].cashiers.forEach((c,j)=>{let t=totals(c),prefix=`s${si}c${j}`;for(let key of ['pickup','etrans','pln','net']){let a=document.querySelector(`[data-live="${prefix}${key}"]`);if(a)a.textContent=money(t[key])}let badge=document.getElementById(`badge-${si}_${j}`);if(badge)badge.textContent=t.net===0?'SEIMBANG':t.net>0?'LEBIH':'KURANG';let box=document.getElementById(`netbox-${si}_${j}`);if(box)box.classList.toggle('negative',t.net<0)});for(let k of ['pickup','etrans','pln','net']){let a=document.querySelector(`[data-live="shift${si+1}${k}"]`);if(a)a.textContent=money(rollup(k,si))}}else if(page==='store'){let h=headTotals();for(let k of Object.keys(h)){let a=document.querySelector(`[data-live="${k}"]`);if(a)a.textContent=money(h[k])}}save()}
 function notify(msg){let el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>el.classList.remove('show'),2800)}
-function archive(){let snapshot=clone(state);history=history.filter(h=>h.date!==snapshot.date);history.unshift(snapshot);history=history.slice(0,365);if(save()){stored=true;notify('Perhitungan tersimpan ke riwayat')}else notify('Gagal menyimpan. Buat backup data.');render()}
-function newData(){if(!confirm('Simpan data aktif ke riwayat dan mulai perhitungan baru?'))return;archive();let oldNames=state.shifts.map(s=>s.cashiers.map(c=>c.name));state=clone(NEW);state.date=today();for(let i=0;i<2;i++)for(let j=0;j<2;j++)state.shifts[i].cashiers[j].name=oldNames[i][j];stored=true;save();selectedShift=0;navigate('calc');notify('Perhitungan baru siap diisi')}
-function recapText(){let h=headTotals(),rows=['REKAP KLEREK KASIR','Tanggal: '+niceDate(state.date),''];state.shifts.forEach((s,i)=>{rows.push('SHIFT '+(i+1));s.cashiers.forEach((c,j)=>{let t=totals(c);rows.push(`${j+1}. ${c.name}`,`Pickup: ${money(t.pickup)} | eTrans: ${money(t.etrans)} | PLN: ${money(t.pln)}`,`KLEREK: ${money(t.net)}`)});rows.push('')});rows.push('TOTAL KLEREK: '+money(rollup('net')),'TOTAL PICKUP: '+money(rollup('pickup')),'TOTAL ETRANS: '+money(rollup('etrans')),'TOTAL PLN: '+money(rollup('pln')),'SETORAN TUNAI: '+money(h.deposit),'SETTLE ETRANS: '+money(state.store.settleEtrans),'SETTLE PLN: '+money(state.store.settlePln),'SELISIH ETRANS (EXCEL): '+money(h.diffE),'SELISIH PLN (EXCEL): '+money(h.diffP));return rows.join('\n')}
+function archive(){let snapshot=clone(state);history=history.filter(h=>h.date!==snapshot.date);history.unshift(snapshot);history=history.slice(0,365);if(save()){stored=true;notify(cloud?.ready?'Riwayat lokal diperbarui. Perubahan kasir tersinkron otomatis.':'Perhitungan tersimpan ke riwayat')}else notify('Gagal menyimpan. Buat backup data.');render()}
+function newData(){if(cloud?.ready){notify('Mode cloud: pilih tanggal kerja untuk memulai hari baru. Data shared tidak direset.');return}if(!confirm('Simpan data aktif ke riwayat dan mulai perhitungan baru?'))return;archive();let oldNames=state.shifts.map(s=>s.cashiers.map(c=>c.name));let target=businessDateFor(0);state=clone(NEW);state.date=target;for(let i=0;i<3;i++)for(let j=0;j<CASHIER_COUNTS[i];j++)state.shifts[i].cashiers[j].name=oldNames[i]?.[j]||staffNames[i][j];stored=true;dateManual=false;save();selectedShift=0;navigate('calc');notify('Perhitungan baru siap diisi')}
+function recapText(){let h=headTotals(),rows=['REKAP KLEREK KASIR','Tanggal: '+niceDate(state.date),''];state.shifts.forEach((s,i)=>{rows.push('SHIFT '+(i+1)+(i===2?' (mulai '+shift3StartLabel(state.date)+' 22.00)':''));s.cashiers.forEach((c,j)=>{let t=totals(c);rows.push(`${j+1}. ${c.name}`,`Pickup: ${money(t.pickup)} | eTrans: ${money(t.etrans)} | PLN: ${money(t.pln)}`,`KLEREK: ${money(t.net)}`)});rows.push('')});rows.push('TOTAL KLEREK: '+money(rollup('net')),'TOTAL PICKUP: '+money(rollup('pickup')),'TOTAL ETRANS: '+money(rollup('etrans')),'TOTAL PLN: '+money(rollup('pln')),'SETORAN TUNAI: '+money(h.deposit),'SETTLE ETRANS: '+money(state.store.settleEtrans),'SETTLE PLN: '+money(state.store.settlePln),'SELISIH ETRANS (EXCEL): '+money(h.diffE),'SELISIH PLN (EXCEL): '+money(h.diffP));return rows.join('\n')}
 function copyText(v,msg){let a=document.createElement('textarea');a.value=v;a.style.cssText='position:fixed;left:-5000px;top:0';document.body.appendChild(a);a.select();let success=false;try{success=document.execCommand('copy')}catch(e){}a.remove();if(success){notify(msg);return}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(v).then(()=>notify(msg),()=>prompt('Salin teks berikut:',v));else prompt('Salin teks berikut:',v)}
 function download(str,filename,mime){try{let blob=new Blob([str],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),12000);notify('File disiapkan. Periksa folder Download.')}catch(e){notify('Unduhan gagal. Gunakan Salin Kode Cadangan.')}}
-function backup(){return JSON.stringify({version:4,app:'KLEREK KASIR',active:state,history,preferences},null,2)}
-function restore(content){try{let data=JSON.parse(content);if(!data.active||!Array.isArray(data.active.shifts))throw Error('format');if(!confirm('Pulihkan data dari cadangan? Data aktif dan riwayat saat ini akan diganti.'))return;state=data.active;history=Array.isArray(data.history)?data.history:[];if(data.preferences&&typeof data.preferences==='object'){preferences={...preferences,...data.preferences};applyAppearance()}normalize();stored=true;save();navigate('dashboard');notify('Cadangan berhasil dipulihkan')}catch(e){notify('Cadangan tidak valid. Gunakan JSON Klerek Kasir.')}}
+function backup(){return JSON.stringify({version:5,app:'KLEREK KASIR',active:state,history,preferences,staffNames,shiftHours},null,2)}
+function restore(content){if(cloud?.ready){notify('Mode cloud: gunakan menu Cloud → Unggah Riwayat Lokal agar data pengguna lain tidak tertimpa.');return}try{let data=JSON.parse(content);if(!data.active||!Array.isArray(data.active.shifts))throw Error('format');if(!confirm('Pulihkan data dari cadangan? Data aktif dan riwayat akan diganti.'))return;state=data.active;history=Array.isArray(data.history)?data.history:[];if(data.preferences&&typeof data.preferences==='object'){preferences={...preferences,...data.preferences};applyAppearance()}normalize();history.forEach(migrateLegacyShift3);if(Array.isArray(data.staffNames)&&data.staffNames.length===3)staffNames=validStaff(data.staffNames);else staffNames=state.shifts.map(s=>s.cashiers.map(c=>c.name));if(Array.isArray(data.shiftHours))shiftHours=validHours(data.shiftHours);saveStaff();stored=true;dateManual=true;save();navigate('dashboard');notify('Cadangan berhasil dipulihkan (PIN perangkat tidak berubah)')}catch(e){notify('Cadangan tidak valid. Gunakan JSON Klerek Kasir.')}}
 function csvExport(){let lines=[['Tanggal','Shift','Kasir','Pickup','eTrans','PLN','Klerek']];state.shifts.forEach((s,i)=>s.cashiers.forEach((c,j)=>{let t=totals(c);lines.push([state.date,i+1,c.name,t.pickup,t.etrans,t.pln,t.net])}));lines.push(['TOTAL','','',rollup('pickup'),rollup('etrans'),rollup('pln'),rollup('net')]);let h=headTotals();lines.push([]);lines.push(['KEPALA TOKO','Nominal']);for(let [n,v] of [['Sales Report',state.store.sales],['Settle eTrans',state.store.settleEtrans],['Settle PLN',state.store.settlePln],['Total Setoran Tunai',h.deposit],['Subtotal',h.subtotal],['Hasil setelah setoran',h.remainder],['Selisih eTrans Excel',h.diffE],['Selisih PLN Excel',h.diffP]])lines.push([n,v]);let csv='\uFEFFsep=;\r\n'+lines.map(row=>row.map(v=>{let s=String(v??'');if(/^[=+@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}).join(';')).join('\r\n');download(csv,'Rekap_Klerek_Kasir_'+state.date+'.csv','text/csv;charset=utf-8')}
-function doAction(a){if(a==='install-pwa'){installPwa();return}if(a==='archive'){archive()}else if(a==='new')newData();else if(a==='reset-shift'){if(confirm('Kosongkan semua nominal pada Shift '+(selectedShift+1)+'?')){for(let c of state.shifts[selectedShift].cashiers)c.rows=[{pickup:0,etrans:0,pln:0}];save();render();notify('Nominal shift dikosongkan')}}else if(a==='copy')copyText(recapText(),'Rekap disalin ke clipboard');else if(a==='json-export')download(backup(),'Backup_Klerek_Kasir_'+state.date+'.json','application/json');else if(a==='json-copy')copyText(backup(),'Kode cadangan disalin');else if(a==='json-import')document.getElementById('import-file').click();else if(a==='json-paste'){let t=prompt('Tempel kode cadangan JSON Klerek Kasir:','');if(t)restore(t)}else if(a==='csv-export')csvExport();else if(a==='open-recap')navigate('recap');else if(a==='open-store')navigate('store');else if(a==='open-settings')navigate('settings');else if(a==='add-deposit'){state.store.deposits.push(0);save();render()}else if(a==='erase'){if(confirm('PERINGATAN: Semua data aktif dan riwayat akan dihapus. Lanjutkan?')&&confirm('Yakin hapus seluruh data?')){history=[];state=clone(NEW);stored=true;save();navigate('dashboard');notify('Data dihapus')}}else if(a==='change-date'){navigate('dashboard');let el=document.querySelector('[data-date]');if(el){el.focus();if(el.showPicker)try{el.showPicker()}catch(e){}}}}
-function changeDate(v){if(!v)return;state.date=v;stored=true;save();render();notify('Tanggal telah diubah')}
-document.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;let d=b.dataset;if(d.theme){changeAppearance('theme',d.theme);return}if(d.layout){changeAppearance('layout',d.layout);return}if(d.go){navigate(d.go);return}if(d.shift!==undefined){selectedShift=+d.shift;render();return}if(d.edit){let [si]=d.edit.split(',').map(Number);selectedShift=si;navigate('calc');return}if(d.action){doAction(d.action);return}if(d.add){let[si,ci]=d.add.split(',').map(Number);state.shifts[si].cashiers[ci].rows.push({pickup:0,etrans:0,pln:0});save();render();return}if(d.delete){let[si,ci,ri]=d.delete.split(',').map(Number),r=state.shifts[si].cashiers[ci].rows;if(r.length===1)r[0]={pickup:0,etrans:0,pln:0};else r.splice(ri,1);save();render();return}if(d.delDeposit!==undefined){let i=+d.delDeposit;state.store.deposits.length===1?state.store.deposits[0]=0:state.store.deposits.splice(i,1);save();render();return}if(d.restore!==undefined){let snap=history[+d.restore];if(snap&&confirm('Buka riwayat '+shortDate(snap.date)+'? Data aktif saat ini akan disimpan terlebih dahulu.')){archive();state=clone(snap);normalize();save();stored=true;navigate('dashboard')}return}if(d.removeHistory!==undefined&&confirm('Hapus riwayat ini secara permanen?')){history.splice(+d.removeHistory,1);save();render()}});
-document.addEventListener('input',e=>{let d=e.target.dataset;if(d.money){let[si,ci,ri,k]=d.money.split(',');state.shifts[+si].cashiers[+ci].rows[+ri][k]=readN(e.target.value);refresh()}else if(d.name){let[si,ci]=d.name.split(',').map(Number);state.shifts[si].cashiers[ci].name=e.target.value;save()}else if(d.store){state.store[d.store]=readN(e.target.value);refresh()}else if(d.deposit!==undefined){state.store.deposits[+d.deposit]=readN(e.target.value);refresh()}else if(d.search!==undefined){query=e.target.value.toLowerCase();let v=history.map((x,i)=>({x,i})).filter(({x})=>!query||String(x.date||'').includes(query)||niceDate(x.date||today()).toLowerCase().includes(query)||(x.shifts||[]).some(s=>(s.cashiers||[]).some(c=>(c.name||'').toLowerCase().includes(query))));let holder=document.getElementById('history-list');if(holder)holder.innerHTML=historyList(v)}});
-document.addEventListener('focusout',e=>{let d=e.target.dataset;if(d.money||d.store||d.deposit!==undefined){let n;if(d.money){let[si,ci,ri,k]=d.money.split(',');n=state.shifts[+si].cashiers[+ci].rows[+ri][k]}else if(d.store)n=state.store[d.store];else n=state.store.deposits[+d.deposit];e.target.value=n?fmt(n):''}});
-document.addEventListener('change',e=>{if(e.target.dataset.date!==undefined)changeDate(e.target.value);if(e.target.id==='import-file'){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>restore(r.result);r.onerror=()=>notify('Tidak dapat membaca file cadangan');r.readAsText(f);e.target.value=''}});
+function csvHistoryExport(month=null){
+ const records=allDays().filter(day=>!month||day.date.startsWith(month));if(!records.length){notify('Belum ada data untuk diekspor');return}
+ const lines=[['Tanggal Kerja','Shift','Kasir','Pickup','eTrans','PLN','Klerek']];
+ for(const day of records){let grand={pickup:0,etrans:0,pln:0,net:0};
+  (day.shifts||[]).forEach((s,si)=>(s.cashiers||[]).forEach((c,ci)=>{let z=totals(c);lines.push([day.date||'',si+1,c.name||'Kasir '+(ci+1),z.pickup,z.etrans,z.pln,z.net]);for(let k of Object.keys(grand))grand[k]+=z[k]}));
+  (day.legacyShift3Cashiers||[]).forEach((c,ci)=>{let z=totals(c);lines.push([day.date||'','3 (arsip)',c.name||'Kasir lama '+(ci+3),z.pickup,z.etrans,z.pln,z.net]);for(let k of Object.keys(grand))grand[k]+=z[k]});
+  lines.push([day.date||'','TOTAL HARIAN','',grand.pickup,grand.etrans,grand.pln,grand.net]);lines.push([]);
+ }
+ download(csvFromRows(lines),'Riwayat_Klerek_Kasir_'+(month||'Semua_'+today())+'.csv','text/csv;charset=utf-8');
+}
+async function checkForUpdate(){
+ if(navigator.onLine===false){notify('Sedang offline. Hubungkan internet untuk cek pembaruan.');return}
+ if(!('serviceWorker' in navigator)||location.protocol==='file:'){notify('Pembaruan otomatis hanya tersedia lewat situs HTTPS.');return}
+ try{
+  const registration=await navigator.serviceWorker.getRegistration('./');
+  if(!registration){notify('PWA belum aktif. Muat ulang situs saat online.');return}
+  await registration.update();
+  if(registration.installing||registration.waiting){notify('Versi baru terdeteksi. Tutup dan buka kembali aplikasi.');return}
+  notify('Pemeriksaan selesai. Muat ulang halaman untuk memuat versi terbaru.');
+ }catch(error){notify('Gagal mengecek pembaruan. Periksa koneksi internet.')}
+}
+function doAction(a){
+ if(a==='install-pwa')return installPwa();
+ if(a==='open-cloud')return navigate('cloud');
+ if(a==='archive')return archive();
+ if(a==='new')return newData();
+ if(a==='reset-shift'){if(confirm('Kosongkan nominal Shift '+(selectedShift+1)+'?'+(cloud?.ready?' Perubahan akan berlaku bagi semua pengguna toko.':''))){state.shifts[selectedShift].cashiers.forEach((c,ci)=>{c.rows=[{pickup:0,etrans:0,pln:0}];cloudQueueCashier(selectedShift,ci)});save();render();notify('Shift dikosongkan')}return}
+ if(a==='copy')return copyText(recapText(),'Rekap disalin');
+ if(a==='json-export')return download(backup(),'Backup_Klerek_Kasir_'+state.date+'.json','application/json');
+ if(a==='json-copy')return copyText(backup(),'Kode cadangan disalin');
+ if(a==='json-import')return document.getElementById('import-file').click();
+ if(a==='json-paste'){let x=prompt('Tempel kode cadangan JSON:','');if(x)restore(x);return}
+ if(a==='csv-export')return csvExport();if(a==='csv-history')return csvHistoryExport();if(a==='csv-history-month')return csvHistoryExport(selectedHistoryMonth);if(a==='check-update')return checkForUpdate();
+ if(a==='open-recap')return navigate('recap');if(a==='open-store')return navigate('store');if(a==='open-settings')return navigate('settings');
+ if(a==='open-reports')return navigate('reports');if(a==='open-staff')return navigate('staff');if(a==='open-security')return navigate('security');
+ if(a==='csv-month')return monthlyCSV();if(a==='print-month')return printReport(true);if(a==='print-report')return printReport();if(a==='png-report')return exportReportPNG(false);if(a==='share-report')return exportReportPNG(true);
+ if(a==='auto-date'){dateManual=false;prepareShiftDate(selectedShift);render();return}
+ if(a==='lock-now')return lockNow();if(a==='pin-setup')return setPinFlow();if(a==='pin-remove')return removePinFlow();
+ if(a==='add-deposit'){if(!hasHeadAccess())return notify('Hanya kepala toko/admin yang dapat edit setoran');state.store.deposits.push(0);save();cloudQueueHead();render();return}
+ if(a==='erase'){if(cloud?.ready){notify('Hapus seluruh data bersama dinonaktifkan pada mode cloud untuk melindungi kasir lain.');return}if(confirm('PERINGATAN: Semua data aktif dan riwayat akan dihapus. Lanjutkan?')&&confirm('Yakin hapus semua data?')){history=[];state=clone(NEW);dateManual=false;stored=true;save();navigate('dashboard');notify('Data transaksi dihapus; PIN tetap berlaku')}return}
+ if(a==='change-date'){navigate('dashboard');let el=document.querySelector('[data-date]');if(el){el.focus();if(el.showPicker)try{el.showPicker()}catch(e){}}}
+}
+function changeDate(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v||''))return;dateManual=true;switchDay(v);render();notify('Tanggal kerja: '+shortDate(v))}
+document.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;let d=b.dataset;
+ if(d.pinAction){if(d.pinAction==='unlock')unlockPin();return}if(pinLocked)return;
+ lastUserActivity=Date.now();
+ if(d.theme)return changeAppearance('theme',d.theme);if(d.layout)return changeAppearance('layout',d.layout);
+ if(d.go){if(d.go==='calc')prepareShiftDate(selectedShift);navigate(d.go);return}
+ if(d.shift!==undefined){selectedShift=+d.shift;prepareShiftDate(selectedShift);render();return}
+ if(d.historyNav!==undefined){shiftHistoryMonth(Number(d.historyNav));return}
+ if(d.edit){let[si]=d.edit.split(',').map(Number);selectedShift=si;dateManual=true;navigate('calc');return}
+ if(d.action)return doAction(d.action);
+ if(d.add){let[si,ci]=d.add.split(',').map(Number);state.shifts[si].cashiers[ci].rows.push({pickup:0,etrans:0,pln:0});save();cloudQueueCashier(si,ci);render();return}
+ if(d.delete){let[si,ci,ri]=d.delete.split(',').map(Number),r=state.shifts[si].cashiers[ci].rows;if(r.length===1)r[0]={pickup:0,etrans:0,pln:0};else r.splice(ri,1);save();cloudQueueCashier(si,ci);render();return}
+ if(d.delDeposit!==undefined){if(!hasHeadAccess())return notify('Akses edit setoran hanya untuk kepala toko/admin');let i=+d.delDeposit;state.store.deposits.length===1?state.store.deposits[0]=0:state.store.deposits.splice(i,1);save();cloudQueueHead();render();return}
+ if(d.restore!==undefined){let snap=history[+d.restore];if(snap&&confirm('Buka riwayat '+shortDate(snap.date)+'? Data aktif saat ini akan disimpan terlebih dahulu.')){switchDay(snap.date);dateManual=true;normalize();save();stored=true;navigate('dashboard')}return}
+ if(d.removeHistory!==undefined&&cloud?.ready){notify('Riwayat bersama tidak dapat dihapus dari perangkat ini.');return}
+ if(d.removeHistory!==undefined&&confirm('Hapus riwayat ini secara permanen?')){history.splice(+d.removeHistory,1);save();render();return}
+});
+document.addEventListener('input',e=>{let d=e.target.dataset;if(pinLocked)return;lastUserActivity=Date.now();
+ if(d.money){let[si,ci,ri,k]=d.money.split(',');state.shifts[+si].cashiers[+ci].rows[+ri][k]=readN(e.target.value);refresh();cloudQueueCashier(+si,+ci)}
+ else if(d.name){let[si,ci]=d.name.split(',').map(Number);state.shifts[si].cashiers[ci].name=e.target.value;staffNames[si][ci]=e.target.value;saveStaff();save();cloudQueueCashier(si,ci);cloudQueueStaff()}
+ else if(d.staffName){let[si,ci]=d.staffName.split(',').map(Number);if(!hasHeadAccess())return;staffNames[si][ci]=e.target.value;state.shifts[si].cashiers[ci].name=e.target.value;saveStaff();save();cloudQueueStaff();cloudQueueCashier(si,ci)}
+ else if(d.shiftTime){let[si,key]=d.shiftTime.split(',');if(+si===2||!hasHeadAccess())return;shiftHours[+si][key]=e.target.value;saveStaff();cloudQueueStaff()}
+ else if(d.store){if(!hasHeadAccess())return;state.store[d.store]=readN(e.target.value);refresh();cloudQueueHead()}
+ else if(d.deposit!==undefined){if(!hasHeadAccess())return;state.store.deposits[+d.deposit]=readN(e.target.value);refresh();cloudQueueHead()}
+ else if(d.search!==undefined){query=e.target.value.toLowerCase();let holder=document.getElementById('history-list');if(holder)holder.innerHTML=historyList(historyInSelectedMonth())}
+});
+document.addEventListener('focusout',e=>{if(cloud?.ready){cloudUpdateBadge();if(cloud.deferredRender)setTimeout(()=>{if(cloud?.ready&&cloud.deferredRender&&!document.activeElement?.matches('input[data-money],input[data-name],input[data-store],input[data-deposit],input[data-staff-name],input[data-shift-time]')){cloud.deferredRender=false;render()}},100)}let d=e.target.dataset;if(d.money||d.store||d.deposit!==undefined){let n;if(d.money){let[si,ci,ri,k]=d.money.split(',');n=state.shifts[+si].cashiers[+ci].rows[+ri][k]}else if(d.store)n=state.store[d.store];else n=state.store.deposits[+d.deposit];e.target.value=n?fmt(n):''}});
+document.addEventListener('change',e=>{if(e.target.dataset.date!==undefined)changeDate(e.target.value);if(e.target.dataset.month!==undefined){selectedMonth=e.target.value;render();}if(e.target.dataset.historyMonth!==undefined&&/^\d{4}-\d{2}$/.test(e.target.value)){selectedHistoryMonth=e.target.value;render();}if(e.target.id==='import-file'){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>restore(r.result);r.onerror=()=>notify('Tidak dapat membaca file cadangan');r.readAsText(f);e.target.value=''}});
 // Instalasi PWA: data dan semua fitur lain tetap berfungsi tanpa fitur instal ini.
 let pendingInstallEvent=null;
 function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}
@@ -298,7 +564,385 @@ function installPwa(){
 }
 window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();pendingInstallEvent=event});
 window.addEventListener('appinstalled',()=>{pendingInstallEvent=null;if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});notify('KLEREK KASIR terpasang. Bisa digunakan offline.');});
-if(!stored)save();render();
+/* KLEREK KASIR Cloud v3.5.0
+   Data tiap kasir dipisah berdasarkan tanggal+shift+slot. Semua write CAS/revision.
+   Backup/data lokal v3.3 TIDAK diunggah otomatis dan TIDAK ditimpa oleh data cloud. */
+const CLOUD_LAST_STORE='klerek_cloud_last_store_v1';
+let cloudSdkLoading=false;
+const cloudDraftKey=id=>'klerek_cloud_drafts_'+id;
+const cashDoc=(day,si,ci)=>`cashier:${day}:${si+1}:${ci+1}`;
+const headDoc=day=>'head:'+day;
+const roleLabel=r=>({admin:'Admin',kepala_toko:'Kepala Toko',kasir:'Kasir'})[r]||r;
+const hasHeadAccess=()=>!(cloud&&cloud.ready&&cloud.role==='kasir');
+function cloudConfigured(){let c=window.KLEREK_SUPABASE_CONFIG||{};return /^https:\/\/[a-z0-9.-]+\.supabase\.co\/?$/i.test(c.url||'')&&typeof c.publishableKey==='string'&&c.publishableKey.length>18}
+function cloudNotice(){
+ if(!cloudConfigured())return 'Belum dikonfigurasi · data hanya tersimpan di perangkat';
+ if(!cloud||!cloud.client)return 'Supabase belum tersedia · data lokal';
+ if(!cloud.user)return 'Cloud belum login · data lokal';
+ if(cloud.loading)return 'Memuat data cloud…';
+ if(!cloud.ready)return 'Pilih toko untuk mulai berbagi data';
+ if(!navigator.onLine)return 'Offline · perubahan menunggu sinkronisasi';
+ if(cloud.conflicts.size)return '⚠ Konflik '+cloud.conflicts.size+' data · periksa menu Cloud';
+ if(cloud.pending.size)return 'Menyinkronkan '+cloud.pending.size+' perubahan…';
+ return 'Cloud tersinkron · '+cloud.storeName;
+}
+function cloudUpdateBadge(){
+ updateConnectionStatus();
+ const saved=document.querySelector('#header .saved');
+ if(saved)saved.textContent=cloud&&cloud.ready?(cloud.conflicts.size?'⚠ Konflik':cloud.pending.size?'◷ Pending':'● Cloud'):'● Lokal';
+}
+function cloudPane(){
+ if(!cloudConfigured())return `<div class="card"><div class="section-title" style="margin-top:0">☁️ Aktifkan Supabase</div><p>Cloud belum diaktifkan. Admin perlu membuat proyek Supabase, menjalankan <b>supabase_setup.sql</b>, lalu mengisi <b>supabase-config.js</b> dengan Project URL dan publishable key.</p><p class="hint">File SQL dan petunjuk sudah tersedia dalam ZIP. Data lokal tetap aman; jangan memasukkan service_role key.</p></div>`;
+ if(!cloud||!cloud.client)return `<div class="card"><b>Supabase belum dapat dimuat</b><p class="hint">Pastikan internet tersedia dan domain cdn.jsdelivr.net dapat diakses, kemudian muat ulang aplikasi.</p></div>`;
+ if(!cloud.user)return `<div class="card"><div class="section-title" style="margin-top:0">☁️ Masuk ke Cloud</div><p class="hint">Setiap kasir menggunakan akun email sendiri. Kepala toko membagikan kode undangan toko setelah akun dibuat.</p><label class="field-label">Email</label><input class="cloud-input" type="email" id="cloud-email" autocomplete="email" placeholder="nama@email.com"><label class="field-label">Password (minimal 6 karakter)</label><input class="cloud-input" type="password" id="cloud-password" autocomplete="current-password" placeholder="Password Supabase"><div class="row-actions mt10"><button class="btn primary" data-cloud="login">Masuk</button><button class="btn" data-cloud="signup">Daftar Akun</button></div><p class="hint mt10">Jika konfirmasi email diaktifkan, periksa inbox sebelum login.</p></div>`;
+ if(cloud.loading)return `<div class="card"><h3>☁️ Mengambil data toko…</h3><p class="hint">Tunggu sampai status cloud terhubung sebelum mengedit transaksi.</p></div>`;
+ if(!cloud.ready)return `<div class="card"><div class="data-row"><span>Akun</span><strong>${esc(cloud.user.email)}</strong></div><div class="section-title">Pilih toko</div>${(cloud.stores||[]).map(s=>`<button class="btn full mt10" data-cloud-store="${esc(s.store_id)}">🏪 ${esc(s.klerek_stores?.name||'Toko')} (${esc(roleLabel(s.role))})</button>`).join('')||'<p class="hint">Akun belum tergabung dalam toko mana pun.</p>'}<div class="line-divider"></div><label class="field-label">Buat toko baru (khusus pemilik/kepala toko)</label><input class="cloud-input" id="cloud-store-name" placeholder="Nama toko" maxlength="100"><button class="btn primary full mt10" data-cloud="create">Buat Toko & Kode Undangan</button><div class="line-divider"></div><label class="field-label">Gabung dengan kode undangan dari admin</label><input class="cloud-input" id="cloud-invite-code" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocapitalize="off"><button class="btn full mt10" data-cloud="join">Gabung Toko</button><div class="line-divider"></div><button class="btn full" data-cloud="logout">Keluar dari Akun</button></div>`;
+ return `<div class="card"><div class="section-title" style="margin-top:0">☁️ ${esc(cloud.storeName)}</div><div class="data-row"><span>Akun</span><strong>${esc(cloud.user.email)}</strong></div><div class="data-row"><span>Peran</span><strong>${esc(roleLabel(cloud.role))}</strong></div><div class="data-row"><span>Status</span><strong>${esc(cloudNotice())}</strong></div><div class="data-row"><span>Menunggu dikirim</span><strong>${cloud.pending.size} data</strong></div><div class="data-row"><span>Konflik pengeditan</span><strong>${cloud.conflicts.size} data</strong></div><p class="hint mt10">6 kasir / 3 shift dapat mengisi dari HP berbeda. Setiap kasir mempunyai dokumen tersendiri agar edit shift lain tidak tertimpa. Sinkronisasi memerlukan internet. Tanggal Shift 3 tetap masuk tanggal kerja besok mulai pukul 22.00.</p><div class="row-actions mt10"><button class="btn primary" data-cloud="refresh">⟳ Ambil Data Terbaru</button><button class="btn" data-cloud="sync">↥ Kirim Pending</button></div>${cloud.conflicts.size?`<div class="notice mt10"><strong>⚠ Ada data bentrok.</strong> Pengguna lain menyimpan data yang sama. Periksa setiap konflik di bawah; data lokal milik Anda tidak dihapus otomatis.</div>${[...cloud.conflicts].map(([key])=>`<div class="card"><div style="overflow-wrap:anywhere">${esc(key)}</div><div class="row-actions mt10"><button class="btn" data-cloud-resolve="server" data-doc="${esc(key)}">Ambil versi cloud</button><button class="btn danger" data-cloud-resolve="mine" data-doc="${esc(key)}">Timpa dengan versi saya</button></div></div>`).join('')}`:''}</div>${cloud.role==='admin'?`<div class="card"><div class="section-title" style="margin-top:0">🔑 Undang Pengguna</div><p class="hint">Berikan kode ini hanya kepada kasir yang diizinkan. Mereka login dengan email sendiri lalu pilih Gabung Toko.</p><div class="cloud-secret" id="cloud-secret">${esc(cloud.inviteCode||'Klik Lihat Kode Undangan')}</div><div class="row-actions mt10"><button class="btn primary" data-cloud="invite">Lihat Kode</button><button class="btn" data-cloud="copy-invite">Salin Kode</button><button class="btn" data-cloud="rotate-invite">Ganti Kode</button></div><p class="hint mt10">Kode baru membuat kode lama tidak dapat dipakai untuk bergabung. Pengguna yang sudah bergabung tetap memiliki akses sampai admin mencabutnya.</p><div class="section-title">👥 Anggota Toko</div>${(cloud.members||[]).map(m=>`<div class="cloud-member"><div class="grow" style="min-width:0"><b style="overflow-wrap:anywhere">${esc(m.email||m.user_id)}</b><div class="hint">${esc(roleLabel(m.role))}</div></div>${m.user_id===cloud.user.id?'<span class="hint">Pemilik</span>':`<select aria-label="Role anggota" class="cloud-role" data-cloud-role="${esc(m.user_id)}"><option value="kasir" ${m.role==='kasir'?'selected':''}>Kasir</option><option value="kepala_toko" ${m.role==='kepala_toko'?'selected':''}>Kepala Toko</option><option value="admin" ${m.role==='admin'?'selected':''}>Admin</option></select><button class="btn small danger" data-cloud-remove="${esc(m.user_id)}">Hapus</button>`}</div>`).join('')||'<p class="hint">Klik Lihat Kode untuk memuat anggota.</p>'}</div>`:''}<div class="card"><div class="section-title" style="margin-top:0">📦 Migrasi & Akun</div><p class="hint">Data sebelum cloud tetap tersimpan di perangkat. Untuk memasukkan riwayat lama ke cloud, gunakan impor berikut. <b>Hanya slot yang belum ada di cloud</b> yang diisi, tanpa menimpa transaksi rekan.</p><button class="btn full" data-cloud="import-local" ${cloud.importing?'disabled':''}>⬆ Unggah Riwayat Lokal (tanpa menimpa)</button><button class="btn full mt10" data-cloud="leave">Ganti Toko</button><button class="btn full mt10 danger" data-cloud="logout">Keluar dari Akun</button><p class="hint mt10">Backup JSON tetap dianjurkan. PIN aplikasi hanya kunci layar perangkat, berbeda dengan password akun cloud.</p></div>`;
+}
+function cloudError(error,fallback='Gagal menghubungkan Supabase'){
+ let m=String(error?.message||error||fallback);
+ if(m.includes('CLOUD_CONFLICT'))return 'Data telah diubah pengguna lain';
+ if(m.includes('permission denied'))return 'Akses ditolak. Periksa skrip SQL dan role akun';
+ return m.slice(0,180);
+}
+async function initCloud(){
+ const config=window.KLEREK_SUPABASE_CONFIG||{};
+ if(!cloudConfigured()){cloudUpdateBadge();return}
+ if(!window.supabase?.createClient){
+  if(!cloudSdkLoading){
+   cloudSdkLoading=true;
+   const script=document.createElement('script');script.async=true;
+   script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+   script.onload=()=>{cloudSdkLoading=false;initCloud()};
+   script.onerror=()=>{cloudSdkLoading=false;cloudUpdateBadge();console.warn('Supabase SDK belum dapat dimuat')};
+   document.head.appendChild(script);
+  }
+  cloudUpdateBadge();return;
+ }
+ cloud={client:window.supabase.createClient(config.url.replace(/\/$/,''),config.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}),user:null,stores:[],members:[],role:null,inviteCode:'',deferredRender:false,ready:false,loading:false,storeId:null,storeName:'',pending:new Map(),revisions:new Map(),conflicts:new Map(),sending:new Set(),timers:new Map(),channel:null,importing:false,fetching:false,lastCheck:null};
+ try{
+  const {data,error}=await cloud.client.auth.getUser();if(error&&error.status!==401)console.warn('Supabase:',error.message);
+  if(data?.user){cloud.user=data.user;await cloudFetchStores()}
+ }catch(error){console.warn('Supabase setup:',error);notify('Cloud tidak dapat tersambung; data lokal tetap aman')}
+ cloudUpdateBadge();if(page==='cloud')render();
+ setInterval(()=>{if(cloud?.ready&&navigator.onLine&&!cloud.fetching)cloudRefreshDocs(false).catch(()=>{})},40000);
+}
+async function cloudFetchStores(preferId){
+ if(!cloud?.user)return;
+ const {data,error}=await cloud.client.from('klerek_members').select('store_id,role,klerek_stores(id,name,owner_id)').eq('user_id',cloud.user.id);
+ if(error){notify('Gagal mengambil toko: '+cloudError(error));return}
+ cloud.stores=data||[];
+ const last=preferId||localStorage.getItem(CLOUD_LAST_STORE);
+ const selected=cloud.stores.find(x=>x.store_id===last)||(cloud.stores.length===1?cloud.stores[0]:null);
+ if(selected)await cloudSelectStore(selected);
+ else{cloud.ready=false;cloud.storeId=null;if(page==='cloud')render()}
+}
+async function cloudHandleAuth(kind){
+ if(!cloud?.client)return;
+ let email=(document.getElementById('cloud-email')?.value||'').trim(),password=document.getElementById('cloud-password')?.value||'';
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||password.length<6){notify('Isi email valid dan password minimal 6 karakter');return}
+ const {data,error}=kind==='signup'?await cloud.client.auth.signUp({email,password}):await cloud.client.auth.signInWithPassword({email,password});
+ if(error){notify(cloudError(error));return}
+ if(!data?.session){notify('Akun didaftarkan. Periksa email dan konfirmasi dahulu sebelum login.');return}
+ cloud.user=data.user;await cloudFetchStores();render();notify('Berhasil masuk ke Supabase');
+}
+async function cloudCreateStore(){
+ let name=(document.getElementById('cloud-store-name')?.value||'').trim();
+ if(name.length<2)return notify('Isi nama toko minimal 2 karakter');
+ const {data,error}=await cloud.client.rpc('klerek_create_store',{p_name:name});
+ if(error){notify(cloudError(error));return}
+ const row=data?.[0];if(!row)return notify('Respons pembuatan toko kosong');
+ localStorage.setItem(CLOUD_LAST_STORE,row.store_id);await cloudFetchStores(row.store_id);
+ cloud.inviteCode=row.invite_code;render();notify('Toko berhasil dibuat. Bagikan kode undangan kepada kasir.');
+}
+async function cloudJoinStore(){
+ let code=(document.getElementById('cloud-invite-code')?.value||'').trim();
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code))return notify('Format kode undangan tidak valid');
+ const {data,error}=await cloud.client.rpc('klerek_join_store',{p_invite_code:code});
+ if(error){notify(cloudError(error));return}
+ localStorage.setItem(CLOUD_LAST_STORE,data);await cloudFetchStores(data);notify('Berhasil bergabung ke toko');
+}
+async function cloudSelectStore(selection){
+ if(!cloud?.user||cloud.loading)return;
+ if(cloud.ready&&cloud.pending.size>0&&!confirm('Ada perubahan belum tersinkron. Perubahan tetap tersimpan di browser toko ini. Ganti toko?'))return;
+ if(cloud.channel){await cloud.client.removeChannel(cloud.channel);cloud.channel=null}
+ cloud.loading=true;cloud.ready=false;cloud.storeId=null;cloud.conflicts.clear();
+ if(page==='cloud')render();
+ try{
+  const list=await cloudGetDocs(selection.store_id);
+  cloud.storeId=selection.store_id;cloud.storeName=selection.klerek_stores?.name||'Toko';cloud.role=selection.role;cloud.revisions.clear();cloud.pending.clear();cloud.timers.forEach(t=>clearTimeout(t));cloud.timers.clear();cloud.sending.clear();
+  localStorage.setItem(CLOUD_LAST_STORE,cloud.storeId);
+  let day=dateManual?state.date:businessDateFor(selectedShift);
+  state=clone(NEW);state.date=day;history=[];
+  staffNames=validStaff(null);shiftHours=validHours(null);
+  list.sort((a,b)=>a.doc_key==='staff'?-1:b.doc_key==='staff'?1:0).forEach(row=>cloudApplyDoc(row,false));
+  // Muat perubahan yang belum dikirim dari sesi sebelumnya, tanpa menimpa revisi server.
+  let saved={};try{saved=JSON.parse(localStorage.getItem(cloudDraftKey(cloud.storeId))||'{}')||{}}catch(e){}
+  for(const [key,item] of Object.entries(saved)){
+   if(!item?.payload||!Number.isInteger(item.expected))continue;
+   cloud.pending.set(key,{payload:item.payload,expected:item.expected});
+   if((cloud.revisions.get(key)||0)!==item.expected)cloud.conflicts.set(key,true);
+   cloudApplyDoc({doc_key:key,payload:item.payload,revision:item.expected},false,true);
+  }
+  cloud.ready=true;cloud.loading=false;cloud.lastCheck=new Date().toISOString();
+  save();cloudSubscribe();if(cloud.role==='admin')cloudLoadAdmin();
+  render();cloudUpdateBadge();
+  if(cloud.pending.size&&!cloud.conflicts.size)cloudFlushAll();
+ }catch(error){
+  cloud.ready=false;cloud.loading=false;cloud.storeId=null;notify('Gagal memuat toko: '+cloudError(error));render();
+ }
+}
+async function cloudGetDocs(storeId){
+ let rows=[];for(let from=0;from<20000;from+=500){
+  let {data,error}=await cloud.client.from('klerek_documents').select('doc_key,payload,revision,updated_at,updated_by').eq('store_id',storeId).order('doc_key').range(from,from+499);
+  if(error)throw error;rows.push(...(data||[]));if((data||[]).length<500)break;
+ }
+ return rows;
+}
+function cloudApplyDoc(row,rerender=true,fromDraft=false){
+ const key=row.doc_key,payload=row.payload||{},rev=Number(row.revision)||0;
+ if(!fromDraft)cloud.revisions.set(key,rev);
+ if(key==='staff'){
+  if(Array.isArray(payload.staffNames))staffNames=validStaff(payload.staffNames);
+  if(Array.isArray(payload.shiftHours))shiftHours=validHours(payload.shiftHours);
+  state.shifts.forEach((shift,si)=>shift.cashiers.forEach((c,ci)=>{if(!cloud.revisions.has(cashDoc(state.date,si,ci)))c.name=staffNames[si][ci]}));
+ }else{
+  let m=/^(cashier|head):(\d{4}-\d{2}-\d{2})(?::([123]):([123]))?$/.exec(key);
+  if(!m)return;
+  let [,kind,date,s,c]=m;
+  let target=state.date===date?state:history.find(x=>x.date===date);
+  if(!target){target=clone(NEW);target.date=date;target.shifts.forEach((shift,si)=>shift.cashiers.forEach((cash,ci)=>cash.name=staffNames[si]?.[ci]||cash.name));history.push(target);history.sort((a,b)=>b.date.localeCompare(a.date));}
+  if(kind==='cashier'){
+   let si=+s-1,ci=+c-1;if(!Array.isArray(payload.rows))return;
+   if(si===2&&ci===2){ // Arsip akun versi lama: dibaca saja, slot ke-3 tidak bisa diedit.
+    target.legacyShift3Cashiers=[{name:String(payload.name||'Kasir 3 (arsip)').slice(0,55),rows:payload.rows.slice(0,100).map(r=>({pickup:readN(r.pickup),etrans:readN(r.etrans),pln:readN(r.pln)}))}];
+    if(rerender){save();cloudRenderIfSafe()}return;
+   }
+   if(ci>=CASHIER_COUNTS[si])return;
+   target.shifts[si].cashiers[ci]={name:String(payload.name||staffNames[si]?.[ci]||'Kasir '+(ci+1)).slice(0,55),rows:payload.rows.slice(0,100).map(r=>({pickup:readN(r.pickup),etrans:readN(r.etrans),pln:readN(r.pln)}))};
+   if(!target.shifts[si].cashiers[ci].rows.length)target.shifts[si].cashiers[ci].rows=[{pickup:0,etrans:0,pln:0}];
+  }else{target.store={...NEW.store,...payload};if(!Array.isArray(target.store.deposits)||!target.store.deposits.length)target.store.deposits=[0]}
+ }
+ if(rerender){save();cloudRenderIfSafe()}
+}
+function cloudRenderIfSafe(){
+ // Jangan hilangkan fokus saat seseorang mengetik nominal di baris lain.
+ const a=document.activeElement;
+ if(a?.matches('input[data-money],input[data-name],input[data-store],input[data-deposit],input[data-staff-name],input[data-shift-time]')){cloud.deferredRender=true;cloudUpdateBadge();return}
+ render();
+}
+function cloudSubscribe(){
+ if(!cloud?.ready||!cloud.storeId)return;
+ const id=cloud.storeId;
+ cloud.channel=cloud.client.channel('klerek-docs-'+id)
+ .on('postgres_changes',{event:'*',schema:'public',table:'klerek_documents',filter:'store_id=eq.'+id},payload=>{
+  const row=payload.new;if(!row?.doc_key||cloud.storeId!==id)return;
+  const key=row.doc_key,rev=Number(row.revision)||0;
+  if((cloud.revisions.get(key)||0)>=rev)return;
+  if(cloud.pending.has(key)){
+   if(row.updated_by===cloud.user?.id&&cloud.sending.has(key))return;
+   cloud.revisions.set(key,rev);cloud.conflicts.set(key,true);cloudUpdateBadge();
+   notify('⚠ Ada perubahan bersamaan. Buka menu Cloud untuk menyelesaikan konflik.');return;
+  }
+  cloudApplyDoc(row);cloudUpdateBadge();
+ }).subscribe(status=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Realtime:',status)});
+}
+async function cloudRefreshDocs(full){
+ if(!cloud?.ready||cloud.fetching||!navigator.onLine)return;
+ cloud.fetching=true;
+ const last=cloud.lastCheck;
+ try{
+  const rows=full?await cloudGetDocs(cloud.storeId):(async()=>{
+    let out=[];
+    for(let from=0;from<10000;from+=500){
+     let q=cloud.client.from('klerek_documents').select('doc_key,payload,revision,updated_at,updated_by').eq('store_id',cloud.storeId);
+     if(last)q=q.gte('updated_at',last);
+     let {data,error}=await q.order('updated_at').range(from,from+499);
+     if(error)throw error;out.push(...(data||[]));if((data||[]).length<500)break;
+    }return out;
+   })();
+  for(const row of rows){
+   let key=row.doc_key,rev=Number(row.revision)||0;
+   if((cloud.revisions.get(key)||0)>=rev)continue;
+   if(cloud.pending.has(key)){if(row.updated_by===cloud.user?.id&&cloud.sending.has(key))continue;cloud.revisions.set(key,rev);cloud.conflicts.set(key,true);continue}
+   cloudApplyDoc(row,false);
+  }
+  cloud.lastCheck=new Date(Date.now()-10000).toISOString(); // overlap untuk toleransi ketidakselarasan jam
+  save();cloudRenderIfSafe();
+ }catch(error){console.warn('Cloud refresh:',error);if(full)notify(cloudError(error))}
+ finally{cloud.fetching=false;cloudUpdateBadge()}
+}
+function cloudPersistDrafts(){
+ if(!cloud?.storeId)return;
+ try{localStorage.setItem(cloudDraftKey(cloud.storeId),JSON.stringify(Object.fromEntries(cloud.pending)))}catch(e){notify('Penyimpanan draft penuh; segera buat backup')}
+ cloudUpdateBadge();
+}
+function cloudQueue(key,payload){
+ if(!cloud?.ready)return;
+ if((key==='staff'||key.startsWith('head:'))&&!hasHeadAccess())return;
+ const existing=cloud.pending.get(key);
+ cloud.pending.set(key,{payload:clone(payload),expected:existing?.expected??cloud.revisions.get(key)??0});
+ cloudPersistDrafts();
+ if(cloud.timers.has(key))clearTimeout(cloud.timers.get(key));
+ cloud.timers.set(key,setTimeout(()=>cloudFlushKey(key),800));
+}
+function cloudQueueCashier(si,ci){if(cloud?.ready)cloudQueue(cashDoc(state.date,si,ci),state.shifts[si].cashiers[ci])}
+function cloudQueueHead(){if(cloud?.ready)cloudQueue(headDoc(state.date),state.store)}
+function cloudQueueStaff(){if(cloud?.ready)cloudQueue('staff',{staffNames:validStaff(staffNames),shiftHours:validHours(shiftHours)})}
+async function cloudFlushKey(key){
+ if(!cloud?.ready||!navigator.onLine||cloud.sending.has(key)||cloud.conflicts.has(key))return;
+ cloud.sending.add(key);
+ let storeId=cloud.storeId;
+ try{
+  while(cloud?.ready&&cloud.storeId===storeId&&cloud.pending.has(key)&&!cloud.conflicts.has(key)){
+   const item=cloud.pending.get(key),snapshot=JSON.stringify(item.payload);
+   const {data,error}=await cloud.client.rpc('klerek_put_document',{p_store_id:storeId,p_doc_key:key,p_payload:item.payload,p_expected_revision:item.expected});
+   if(error){
+    if(String(error.message||'').includes('CLOUD_CONFLICT')){cloud.conflicts.set(key,true);notify('⚠ Terdapat edit bersamaan pada '+key+'. Periksa menu Cloud.');}
+    else {console.warn('Sync:',error);notify('Sinkronisasi tertunda: '+cloudError(error));}
+    break;
+   }
+   const row=data?.[0],revision=Number(row?.revision)||item.expected+1;
+   cloud.revisions.set(key,revision);
+   const current=cloud.pending.get(key);
+   if(current&&JSON.stringify(current.payload)===snapshot){cloud.pending.delete(key);}
+   else if(current){current.expected=revision;cloud.pending.set(key,current)}
+   cloudPersistDrafts();
+  }
+ }catch(error){notify('Belum berhasil mengirim perubahan ke cloud')}
+ finally{cloud.sending.delete(key);cloudPersistDrafts()}
+}
+function cloudFlushAll(){if(!cloud?.ready)return;for(const key of cloud.pending.keys())cloudFlushKey(key)}
+async function cloudResolve(key,choice){
+ if(!cloud?.ready||!cloud.pending.has(key)||!navigator.onLine)return;
+ let {data,error}=await cloud.client.from('klerek_documents').select('doc_key,payload,revision').eq('store_id',cloud.storeId).eq('doc_key',key).maybeSingle();
+ if(error)return notify(cloudError(error));
+ if(choice==='server'){
+  if(!confirm('Buang perubahan lokal untuk '+key+' dan gunakan versi cloud? Buat backup JSON dahulu bila perlu.'))return;
+  cloud.conflicts.delete(key);cloud.pending.delete(key);cloudPersistDrafts();
+  if(data)cloudApplyDoc(data);else{cloud.revisions.delete(key);notify('Dokumen sudah tidak ada di cloud; muat ulang tanggal untuk melihat data kosong')}
+ }else{
+  if(!confirm('PERINGATAN: Ini akan menimpa perubahan terbaru pengguna lain pada '+key+'. Lanjutkan?'))return;
+  cloud.revisions.set(key,Number(data?.revision)||0);
+  let item=cloud.pending.get(key);item.expected=Number(data?.revision)||0;
+  cloud.conflicts.delete(key);cloudPersistDrafts();await cloudFlushKey(key);
+  cloudRenderIfSafe();
+ }
+}
+async function cloudLoadAdmin(){
+ if(!cloud?.ready||cloud.role!=='admin')return;
+ const id=cloud.storeId;
+ const [code,people]=await Promise.all([
+   cloud.client.rpc('klerek_get_invite',{p_store_id:id}),
+   cloud.client.rpc('klerek_list_members',{p_store_id:id})
+ ]);
+ if(cloud.storeId!==id)return;
+ if(!code.error)cloud.inviteCode=code.data||'';
+ if(!people.error)cloud.members=people.data||[];
+ if(page==='cloud')render();
+}
+async function cloudHandleAction(action){
+ if(!cloud)return;
+ try{
+  if(action==='login'||action==='signup')return cloudHandleAuth(action);
+  if(action==='create')return cloudCreateStore();
+  if(action==='join')return cloudJoinStore();
+  if(action==='logout'){
+   if(cloud.pending.size&&!confirm('Ada perubahan yang belum terkirim. Draft tetap disimpan di perangkat ini. Tetap keluar?'))return;
+   if(cloud.channel)await cloud.client.removeChannel(cloud.channel);
+   await cloud.client.auth.signOut();cloud.user=null;cloud.ready=false;cloud.storeId=null;cloud.pending.clear();cloud.conflicts.clear();
+   cloudReturnToLocal();render();notify('Keluar akun cloud; data lokal tetap tersedia');return;
+  }
+  if(action==='leave'){
+   if(cloud.pending.size&&!confirm('Perubahan belum dikirim tetap disimpan di perangkat. Ganti toko?'))return;
+   if(cloud.channel)await cloud.client.removeChannel(cloud.channel);
+   cloud.ready=false;cloud.storeId=null;cloud.pending.clear();cloud.conflicts.clear();
+   localStorage.removeItem(CLOUD_LAST_STORE);cloudReturnToLocal();render();return;
+  }
+  if(!cloud.ready)return;
+  if(action==='refresh')return cloudRefreshDocs(true);
+  if(action==='sync'){cloudFlushAll();notify(cloud.pending.size?'Mencoba mengirim draft':'Semua data sudah tersinkron');return}
+  if(action==='invite'){await cloudLoadAdmin();return}
+  if(action==='copy-invite'){
+   if(!cloud.inviteCode)await cloudLoadAdmin();
+   if(cloud.inviteCode)return copyText(cloud.inviteCode,'Kode undangan disalin');
+  }
+  if(action==='rotate-invite'){
+   if(!confirm('Ganti kode undangan? Kode lama tidak dapat dipakai untuk bergabung.'))return;
+   const {data,error}=await cloud.client.rpc('klerek_rotate_invite',{p_store_id:cloud.storeId});
+   if(error)return notify(cloudError(error));cloud.inviteCode=data;render();notify('Kode undangan baru siap');return;
+  }
+  if(action==='import-local')return cloudImportLocal();
+ }catch(e){notify(cloudError(e))}
+}
+function cloudReturnToLocal(){
+ try{
+  const s=JSON.parse(localStorage.getItem(DATA_KEY)||'null'),h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+  state=s&&Array.isArray(s.shifts)?s:clone(NEW);history=Array.isArray(h)?h:[];normalize();history.forEach(migrateLegacyShift3);
+  staffNames=validStaff(JSON.parse(localStorage.getItem(STAFF_KEY)||'null'));
+  shiftHours=validHours(JSON.parse(localStorage.getItem(HOURS_KEY)||'null'));
+ }catch(e){state=clone(NEW);history=[];normalize()}
+}
+async function cloudImportLocal(){
+ if(!cloud?.ready||cloud.importing)return;
+ if(!navigator.onLine)return notify('Koneksi internet diperlukan untuk mengunggah data lokal');
+ if(cloud.pending.size)return notify('Selesaikan sinkronisasi atau konflik yang ada sebelum impor');
+ let oldState,oldHistory;
+ try{oldState=JSON.parse(localStorage.getItem(DATA_KEY)||'null');oldHistory=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]')}catch(e){}
+ let days=[...(Array.isArray(oldHistory)?oldHistory:[]),oldState].filter(x=>x&&Array.isArray(x.shifts)&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||''));
+ let unique=new Map(days.map(day=>[day.date,day]));
+ let docs=[];
+ for(let day of unique.values()){
+  day.shifts.forEach((shift,si)=>(shift.cashiers||[]).forEach((c,ci)=>{
+   if(ci>=CASHIER_COUNTS[si]||!c?.rows)return;
+   let nonzero=c.rows.some(r=>readN(r.pickup)||readN(r.etrans)||readN(r.pln));
+   if(nonzero||String(c.name||'')!==`Kasir ${ci+1}`)docs.push([cashDoc(day.date,si,ci),clone(c)]);
+  }));
+  (day.legacyShift3Cashiers||[]).forEach((c,i)=>{if(c?.rows)docs.push([cashDoc(day.date,2,i+2),clone(c)])});
+  if(hasHeadAccess()&&day.store&&Object.values(day.store).some(v=>Array.isArray(v)?v.some(n=>readN(n)):readN(v)))docs.push([headDoc(day.date),clone(day.store)]);
+ }
+ if(hasHeadAccess()){
+  let oldNames,oldHours;try{oldNames=JSON.parse(localStorage.getItem(STAFF_KEY)||'null');oldHours=JSON.parse(localStorage.getItem(HOURS_KEY)||'null')}catch(e){}
+  if(Array.isArray(oldNames))docs.push(['staff',{staffNames:validStaff(oldNames),shiftHours:validHours(oldHours)}]);
+ }
+ docs=docs.filter(([key])=>!cloud.revisions.has(key));
+ if(!docs.length)return notify('Tidak ada data lama baru untuk diunggah (dokumen cloud tidak ditimpa)');
+ if(!confirm('Unggah '+docs.length+' dokumen dari '+unique.size+' tanggal lama ke toko '+cloud.storeName+'? Dokumen yang sudah ada di cloud akan dilewati, bukan ditimpa.'))return;
+ cloud.importing=true;let success=0,skip=0,fail=0;
+ for(let n=0;n<docs.length;n+=4){
+  const batch=docs.slice(n,n+4);
+  await Promise.all(batch.map(async ([key,payload])=>{
+   try{
+    let {error}=await cloud.client.rpc('klerek_put_document',{p_store_id:cloud.storeId,p_doc_key:key,p_payload:payload,p_expected_revision:0});
+    if(error){if(String(error.message||'').includes('CLOUD_CONFLICT'))skip++;else fail++}else success++;
+   }catch(e){fail++}
+  }));
+ }
+ cloud.importing=false;await cloudRefreshDocs(true);
+ notify(`Migrasi selesai: ${success} masuk, ${skip} sudah ada, ${fail} gagal.`);
+}
+// Tombol dan formulir cloud di luar event aplikasi utama.
+document.addEventListener('click',e=>{
+ const btn=e.target.closest('button');if(!btn||pinLocked)return;
+ if(btn.dataset.cloud){e.preventDefault();cloudHandleAction(btn.dataset.cloud)}
+ if(btn.dataset.cloudStore){let s=cloud?.stores?.find(x=>x.store_id===btn.dataset.cloudStore);if(s)cloudSelectStore(s)}
+ if(btn.dataset.cloudResolve)cloudResolve(btn.dataset.doc,btn.dataset.cloudResolve);
+ if(btn.dataset.cloudRemove){
+  let uid=btn.dataset.cloudRemove;if(!cloud?.ready||cloud.role!=='admin')return;
+  if(!confirm('Cabut akses anggota ini dari toko?'))return;
+  cloud.client.rpc('klerek_remove_member',{p_store_id:cloud.storeId,p_user_id:uid}).then(({error})=>{if(error)notify(cloudError(error));else{notify('Akses anggota dicabut');cloudLoadAdmin()}});
+ }
+});
+document.addEventListener('change',e=>{
+ const uid=e.target.dataset.cloudRole;if(!uid||!cloud?.ready||cloud.role!=='admin')return;
+ cloud.client.rpc('klerek_set_member_role',{p_store_id:cloud.storeId,p_user_id:uid,p_role:e.target.value})
+ .then(({error})=>{if(error)notify(cloudError(error));else{notify('Peran anggota diperbarui');cloudLoadAdmin()}});
+});
+window.addEventListener('online',()=>{if(!cloud?.client&&cloudConfigured())initCloud();if(cloud?.ready){cloudFlushAll();cloudRefreshDocs(false)}});
+window.addEventListener('beforeunload',()=>{if(cloud?.ready&&cloud.pending.size)cloudPersistDrafts()});
+
+// Simpan juga hasil migrasi slot kasir lama sebelum memulai sesi berikutnya.
+save();render();initCloud();
 })();
 </script>
 <script>

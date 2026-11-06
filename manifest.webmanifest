@@ -1,7 +1,7 @@
 {
-  "name": "KLEREK KASIR - Multi Tema Offline",
+  "name": "KLEREK KASIR - Cloud Multiuser + Offline",
   "short_name": "Klerek Kasir",
-  "description": "Aplikasi perhitungan kasir yang dapat digunakan sepenuhnya offline setelah dipasang. Data tetap di perangkat.",
+  "description": "Perhitungan kasir 3 shift dan 6 kasir, riwayat per bulan, laporan PDF/PNG, PIN, Supabase multiuser dan mode lokal.",
   "id": "./",
   "start_url": "./index.html",
   "scope": "./",
