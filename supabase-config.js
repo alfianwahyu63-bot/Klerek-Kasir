@@ -1,7 +1,7 @@
-// Isi dengan Project URL dan PUBLISHABLE (atau legacy anon) key dari Supabase.
-// File ini akan menjadi PUBLIK di GitHub Pages: JANGAN masukkan service_role,
-// secret key, password database, atau password pengguna di sini.
+// KLEREK KASIR · project Supabase pengguna (publishable/browser key).
+// Publishable key memang untuk kode client; keamanan data bergantung Supabase Auth + RLS.
+// JANGAN tambahkan service_role / sb_secret / password database di file publik.
 window.KLEREK_SUPABASE_CONFIG = {
-  url: '',                // contoh: https://abcdefg.supabase.co
-  publishableKey: ''      // contoh: sb_publishable_... ATAU anon public key
+  url: "https://nflqhjevxklutbymdrwf.supabase.co",
+  publishableKey: "sb_publishable_S_Smd-_XRbbb4WglgVbm1g_HRJ4wI7g"
 };
