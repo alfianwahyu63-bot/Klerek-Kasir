@@ -1,7 +1,7 @@
-/* KLEREK KASIR v3.5.1 · Cloud-enabled PWA shell.
+/* KLEREK KASIR v4.0.0 · Cloud-enabled PWA shell.
    Cache hanya file yang benar-benar ada di proyek ini.
    Rekap, nama kasir, dan riwayat disimpan lokal oleh aplikasi, bukan service worker. */
-const CACHE_NAME = 'klerek-shell-v3.5.1-20261107';
+const CACHE_NAME = 'klerek-shell-v4.0.0-20261107';
 const SHELL = [
   './', './index.html', './supabase-config.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png',

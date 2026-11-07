@@ -1,7 +1,7 @@
 {
   "name": "KLEREK KASIR - Cloud Multiuser + Offline",
   "short_name": "Klerek Kasir",
-  "description": "Perhitungan kasir 3 shift dan 6 kasir, riwayat per bulan, laporan PDF/PNG, PIN, Supabase multiuser dan mode lokal.",
+  "description": "Klerek Kasir v4: 3 shift dan 6 kasir, tutup shift & approval, monitoring, audit, backup cloud, riwayat bulanan, laporan PDF/PNG, PIN, multi-toko dan offline.",
   "id": "./",
   "start_url": "./index.html",
   "scope": "./",
