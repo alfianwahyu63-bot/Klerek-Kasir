@@ -1,0 +1,126 @@
+-- KLEREK KASIR v4.1.0 | SETTLEMENT PER SHIFT
+-- Jalankan SESUDAH patch v4.0.1 berhasil. Tidak menghapus data/table lama.
+-- Buat backup sebelum perubahan database produksi.
+-- Berisi 3 CREATE OR REPLACE FUNCTION dan pengaturan execute.
+-- Dokumen baru per tanggal + shift: settlement:YYYY-MM-DD:1/2/3
+-- Perhitungan: jumlah eTrans/PLN dari Kasir 1+2 MINUS input settlement per shift.
+-- Role kasir: hanya shift yang ditugaskan, selama laporannya belum dikirim/disetujui.
+-- Kepala toko/admin: boleh isi selama shift belum disetujui.
+-- RLS dokumen + audit + optimistic revision tetap digunakan.
+
+begin;
+
+create or replace function public.klerek_put_document(
+ p_store_id uuid,p_doc_key text,p_payload jsonb,p_expected_revision bigint
+) returns table(revision bigint,updated_at timestamptz)
+language plpgsql security definer set search_path='' as $$
+declare v_role text;v_rev bigint;v_time timestamptz;v_existing bigint;
+ v_shift smallint;v_slot smallint;v_day date;v_old jsonb;v_is_cash boolean;v_is_settlement boolean;
+begin
+ if auth.uid() is null then raise exception 'Login diperlukan';end if;
+ select m.role into v_role from public.klerek_members m where m.store_id=p_store_id and m.user_id=auth.uid();
+ if v_role is null then raise exception 'Tidak terdaftar sebagai anggota toko';end if;
+ if p_doc_key<>'staff' and p_doc_key !~ '^head:[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+ and p_doc_key !~ '^cashier:[0-9]{4}-[0-9]{2}-[0-9]{2}:[123]:[12]$'
+ and p_doc_key !~ '^settlement:[0-9]{4}-[0-9]{2}-[0-9]{2}:[123]$' then raise exception 'Kunci dokumen tidak berlaku';end if;
+ v_is_cash=p_doc_key like 'cashier:%';
+ v_is_settlement=p_doc_key like 'settlement:%';
+ if (p_doc_key='staff' or p_doc_key like 'head:%') and v_role='kasir' then raise exception 'Hanya kepala toko/admin boleh mengubah data';end if;
+ if v_is_cash then
+  v_day=pg_catalog.substr(p_doc_key, 9, 10)::date;
+  v_shift=pg_catalog.split_part(p_doc_key,':',3)::smallint;
+  v_slot=pg_catalog.split_part(p_doc_key,':',4)::smallint;
+  if v_role='kasir' and not exists(select 1 from public.klerek_assignments a where a.store_id=p_store_id and a.user_id=auth.uid() and a.shift=v_shift and a.slot=v_slot) then raise exception 'SLOT_NOT_ASSIGNED';end if;
+  if exists(select 1 from public.klerek_workflows w where w.store_id=p_store_id and w.work_date=v_day and w.shift=v_shift and w.slot=v_slot and w.status in ('submitted','approved')) then raise exception 'REPORT_LOCKED';end if;
+  if coalesce(pg_catalog.jsonb_typeof(p_payload->'rows'),'null')<>'array' then raise exception 'Format baris tidak valid';end if;
+ end if;
+ if v_is_settlement then
+  v_day=pg_catalog.split_part(p_doc_key,':',2)::date;
+  v_shift=pg_catalog.split_part(p_doc_key,':',3)::smallint;
+  if v_role='kasir' and not exists(
+    select 1 from public.klerek_assignments a
+    left join public.klerek_workflows w
+      on w.store_id=a.store_id and w.work_date=v_day and w.shift=a.shift and w.slot=a.slot
+    where a.store_id=p_store_id and a.user_id=auth.uid() and a.shift=v_shift
+      and (w.status is null or w.status in ('draft','revision'))
+  ) then raise exception 'SLOT_NOT_ASSIGNED';end if;
+  if exists(
+    select 1 from public.klerek_workflows w where w.store_id=p_store_id
+    and w.work_date=v_day and w.shift=v_shift and w.status='approved'
+  ) then raise exception 'REPORT_LOCKED';end if;
+  if coalesce(pg_catalog.jsonb_typeof(p_payload->'etrans'),'missing') not in ('null','number')
+    or coalesce(pg_catalog.jsonb_typeof(p_payload->'pln'),'missing') not in ('null','number')
+  then raise exception 'Format settlement tidak valid';end if;
+  if (p_payload->>'etrans')::numeric<0 or (p_payload->>'pln')::numeric<0
+    or (p_payload->>'etrans')::numeric>1000000000000 or (p_payload->>'pln')::numeric>1000000000000
+  then raise exception 'Nominal settlement harus non-negatif';end if;
+ end if;
+ if p_payload is null or pg_catalog.jsonb_typeof(p_payload)<>'object' or pg_catalog.octet_length(p_payload::text)>120000 then raise exception 'Payload tidak valid';end if;
+ if coalesce(p_expected_revision,-1)<0 then raise exception 'Revision tidak valid';end if;
+ select d.revision,d.payload into v_existing,v_old from public.klerek_documents d where d.store_id=p_store_id and d.doc_key=p_doc_key for update;
+ if coalesce(v_existing,0)<>p_expected_revision then raise exception 'CLOUD_CONFLICT';end if;
+ insert into public.klerek_documents as d(store_id,doc_key,payload,revision,updated_by)
+ values(p_store_id,p_doc_key,p_payload,1,auth.uid())
+ on conflict(store_id,doc_key) do update set payload=excluded.payload,revision=d.revision+1,updated_at=now(),updated_by=auth.uid()
+ where d.revision=p_expected_revision
+ returning d.revision,d.updated_at into v_rev,v_time;
+ if not found then raise exception 'CLOUD_CONFLICT';end if;
+ insert into public.klerek_audit(store_id,actor,item_key,action,before_summary,after_summary)
+ values(p_store_id,auth.uid(),p_doc_key,'EDIT',
+  case when v_old is null then null else pg_catalog.jsonb_build_object('revision',v_existing,'bytes',pg_catalog.octet_length(v_old::text),'rows',pg_catalog.jsonb_array_length(case when pg_catalog.jsonb_typeof(v_old->'rows')='array' then v_old->'rows' else '[]'::jsonb end)) end,
+  pg_catalog.jsonb_build_object('revision',v_rev,'bytes',pg_catalog.octet_length(p_payload::text),'rows',pg_catalog.jsonb_array_length(case when pg_catalog.jsonb_typeof(p_payload->'rows')='array' then p_payload->'rows' else '[]'::jsonb end)));
+ return query select v_rev,v_time;
+end $$;
+
+create or replace function public.klerek_backup_day(p_store_id uuid,p_work_date date)
+returns timestamptz language plpgsql security definer set search_path='' as $$
+declare v_role text;v_doc jsonb;v_flow jsonb;v_time timestamptz;
+begin
+ select m.role into v_role from public.klerek_members m where m.store_id=p_store_id and m.user_id=auth.uid();
+ if v_role not in ('admin','kepala_toko') then raise exception 'Hanya kepala toko/admin dapat membuat backup cloud';end if;
+ select coalesce(pg_catalog.jsonb_object_agg(d.doc_key,d.payload),'{}'::jsonb) into v_doc from public.klerek_documents d
+ where d.store_id=p_store_id and (d.doc_key='staff' or d.doc_key='head:'||p_work_date::text or d.doc_key like 'cashier:'||p_work_date::text||':%'
+ or d.doc_key like 'settlement:'||p_work_date::text||':%');
+ select coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(w)),'[]'::jsonb) into v_flow from public.klerek_workflows w where w.store_id=p_store_id and w.work_date=p_work_date;
+ if pg_catalog.octet_length(v_doc::text)>2000000 then raise exception 'Snapshot melewati 2 MB';end if;
+ insert into public.klerek_backups as b(store_id,work_date,snapshot,created_by)
+ values(p_store_id,p_work_date,pg_catalog.jsonb_build_object('documents',v_doc,'workflows',v_flow),auth.uid())
+ on conflict(store_id,work_date) do update set snapshot=excluded.snapshot,created_by=auth.uid(),created_at=now()
+ returning b.created_at into v_time;
+ -- Retensi 35 hari untuk menjaga biaya penyimpanan. Arsip transaksi TIDAK DIHAPUS.
+ delete from public.klerek_backups where store_id=p_store_id and work_date<p_work_date-35;
+ insert into public.klerek_audit(store_id,actor,item_key,action,after_summary)
+ values(p_store_id,auth.uid(),'backup:'||p_work_date,'BACKUP',pg_catalog.jsonb_build_object('work_date',p_work_date));
+ return v_time;
+end $$;
+
+create or replace function public.klerek_restore_missing_day(p_store_id uuid,p_work_date date)
+returns integer language plpgsql security definer set search_path='' as $$
+declare v_role text;v_doc jsonb;v_key text;v_value jsonb;v_count int:=0;
+begin
+ select m.role into v_role from public.klerek_members m where m.store_id=p_store_id and m.user_id=auth.uid();
+ if v_role<>'admin' then raise exception 'Hanya admin boleh memulihkan data';end if;
+ select snapshot->'documents' into v_doc from public.klerek_backups where store_id=p_store_id and work_date=p_work_date;
+ if v_doc is null then raise exception 'Backup tanggal tersebut tidak ada';end if;
+ for v_key,v_value in select key,value from pg_catalog.jsonb_each(v_doc) loop
+  if v_key = 'head:'||p_work_date::text
+   or (v_key ~ '^cashier:[0-9]{4}-[0-9]{2}-[0-9]{2}:[123]:[12]$' and v_key like 'cashier:'||p_work_date::text||':%')
+   or (v_key ~ '^settlement:[0-9]{4}-[0-9]{2}-[0-9]{2}:[123]$' and v_key like 'settlement:'||p_work_date::text||':%') then
+   insert into public.klerek_documents(store_id,doc_key,payload,revision,updated_by)
+   values(p_store_id,v_key,v_value,1,auth.uid()) on conflict do nothing;
+   if found then v_count=v_count+1;end if;
+  end if;
+ end loop;
+ insert into public.klerek_audit(store_id,actor,item_key,action,after_summary)
+ values(p_store_id,auth.uid(),'backup:'||p_work_date,'RESTORE_MISSING',pg_catalog.jsonb_build_object('added',v_count));
+ return v_count;
+end $$;
+
+revoke all on function public.klerek_put_document(uuid,text,jsonb,bigint) from public;
+grant execute on function public.klerek_put_document(uuid,text,jsonb,bigint) to authenticated;
+revoke all on function public.klerek_backup_day(uuid,date) from public;
+grant execute on function public.klerek_backup_day(uuid,date) to authenticated;
+revoke all on function public.klerek_restore_missing_day(uuid,date) from public;
+grant execute on function public.klerek_restore_missing_day(uuid,date) to authenticated;
+
+commit;

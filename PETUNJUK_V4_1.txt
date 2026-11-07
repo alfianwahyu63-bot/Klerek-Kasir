@@ -1,0 +1,30 @@
+KLEREK KASIR v4.1 — FITUR SETTLEMENT SHIFT ETRANS & PLN
+
+Fitur di Hitung → pilih Shift 1/2/3:
+- Input settlement eTrans shift, input settlement PLN shift.
+- Total kasir = Kasir 1 + Kasir 2, dihitung masing-masing eTrans dan PLN.
+- Selisih = total kasir - nilai settlement shift.
+- Positif = LEBIH, negatif = KURANG, nol = SESUAI.
+- Jika belum diinput, status BELUM DIISI (tidak dianggap Rp0).
+- Tiap shift & tanggal kerja memiliki settlement terpisah; Shift 3 tetap mulai 22:00 H-1 tetapi dihitung H.
+- Laporan Kepala Toko, rekap WA/PDF dan ekspor CSV mencantumkan settlement per shift.
+- Perhitungan Pickup - eTrans - PLN (hasil Klerek) TIDAK DIUBAH.
+
+WEBSITE GITHUB PAGES:
+1. Backup data lokal dari aplikasi lama (JSON).
+2. Masuk repositori GitHub Klerek-Kasir. Ganti file di ROOT dengan isi folder ini,
+   PASTIKAN index.html tetap bernama index.html.
+3. Commit, dan pastikan Settings → Pages → Deploy from branch main / root.
+4. Refresh website / tutup buka PWA.
+
+SUPABASE CLOUD (WAJIB bila ingin settlement tersinkron multi HP):
+1. Pastikan SQL setup awal dan PATCH v4.0.1 sudah berhasil (sudah ada tabel v4).
+2. Jalankan KLEREK_KASIR_v4.1_SETTLEMENT_SUPABASE_PATCH.txt di Supabase → SQL Editor.
+   Jangan menghapus tabel. Jangan menjalankan SQL patch berkali-kali saat ada pekerjaan aktif.
+3. Jalankan aplikasi web v4.1 / build ulang APK v4.1.
+4. Kasir hanya boleh menginput settlement shift yang ditugaskan dan belum dikirim.
+   Kepala toko/admin dapat mengedit sampai ada laporan shift yang disetujui.
+5. Uji satu tanggal/shift di 2 perangkat sebelum mengandalkan cloud untuk operasional.
+
+CATATAN: kode/fitur lokal telah diuji dalam browser; konfigurasi Supabase sesungguhnya
+belum diuji secara live dengan akun toko. Publikasi GitHub tidak dilakukan otomatis.

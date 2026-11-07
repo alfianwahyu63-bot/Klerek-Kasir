@@ -1,7 +1,7 @@
 {
   "name": "KLEREK KASIR - Cloud Multiuser + Offline",
   "short_name": "Klerek Kasir",
-  "description": "Klerek Kasir v4: 3 shift dan 6 kasir, tutup shift & approval, monitoring, audit, backup cloud, riwayat bulanan, laporan PDF/PNG, PIN, multi-toko dan offline.",
+  "description": "Klerek Kasir v4.1: 3 shift dan 6 kasir, settlement eTrans dan PLN per shift, tutup shift & approval, monitoring, audit, backup cloud, riwayat bulanan, laporan PDF/PNG, PIN, multi-toko dan offline.",
   "id": "./",
   "start_url": "./index.html",
   "scope": "./",
